@@ -1,0 +1,12 @@
+{
+  "python.defaultInterpreterPath": "C:\\Users\\user\\anaconda3\\envs\\Backend\\python.exe",
+  "python.analysis.typeCheckingMode": "basic",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "always",
+    "source.organizeImports": "always"
+  },
+  "python.formatting.provider": "black",
+  "ruff.enable": true,
+  "ruff.lint.enable": true
+}

@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e735f746ce4f9549b0127fbaee12d31, type: 3}
+  m_Name: WoodenRoundTableData
+  m_EditorClassIdentifier: 
+  ObjectId: WoodenRoundTable
+  ObjectName: "\uB098\uBB34 \uC6D0\uD615 \uD14C\uC774\uBE14"
+  Sprites:
+  - {fileID: 21300000, guid: 3f200119d68cb6649bdcbb48237431f9, type: 3}
+  LinkedItem: {fileID: 11400000, guid: 123ab63b8572b734e925c36d313d2ecf, type: 2}
+  UseSpriteCollider: 1
+  AdditionalComponents: []
+  IsRotatable: 1
+  UseFlipX: 1
+  IsEditable: 1

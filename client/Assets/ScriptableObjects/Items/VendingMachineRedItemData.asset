@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 917388ea3f62235449372833b2042320, type: 3}
+  m_Name: VendingMachineRedItemData
+  m_EditorClassIdentifier: 
+  itemId: VendingMachineRedItem
+  itemName: "\uBE68\uAC04 \uC790\uD310\uAE30"
+  itemType: 5
+  isStackable: 0
+  itemIconSprite: {fileID: 1072920363971634930, guid: df09ca6ddc4f07646b7c09d1e949b630, type: 3}
+  isTool: 0
+  itemClassName: 
+  toolClassName: 
+  holdingSprite: {fileID: 0}

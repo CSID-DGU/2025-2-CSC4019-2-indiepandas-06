@@ -1,0 +1,12 @@
+fileFormatVersion: 2
+guid: 2de798354933b8c4f8dc2322d06c7e9e
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - waterAreaPrefab: {fileID: 8779835143589193040, guid: a4f180c1aff910048884475673977754, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

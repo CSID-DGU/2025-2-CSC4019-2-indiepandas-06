@@ -1,0 +1,14 @@
+services:
+  app:
+    ports:
+      - "8000:8000"
+      - "5678:5678"  # debugpy
+    environment:
+      - DEBUGPY=1
+    command: >
+      sh -c "
+      if [ \"$DEBUGPY\" = \"1\" ]; then
+        python -m debugpy --listen 0.0.0.0:5678 -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload;
+      else
+        gunicorn app.main:app -k uvicorn.workers.UvicornWorker -w 4 -b 0.0.0.0:8000;
+      fi"

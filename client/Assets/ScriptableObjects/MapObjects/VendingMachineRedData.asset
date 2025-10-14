@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e735f746ce4f9549b0127fbaee12d31, type: 3}
+  m_Name: VendingMachineRedData
+  m_EditorClassIdentifier: 
+  ObjectId: VendingMachineRed
+  ObjectName: "\uBE68\uAC04 \uC790\uD310\uAE30"
+  Sprites:
+  - {fileID: 1072920363971634930, guid: df09ca6ddc4f07646b7c09d1e949b630, type: 3}
+  - {fileID: -2771492577325793620, guid: df09ca6ddc4f07646b7c09d1e949b630, type: 3}
+  - {fileID: 1297985819512041171, guid: df09ca6ddc4f07646b7c09d1e949b630, type: 3}
+  - {fileID: -5944575367698595952, guid: df09ca6ddc4f07646b7c09d1e949b630, type: 3}
+  LinkedItem: {fileID: 11400000, guid: 56837c6e1742bb5478523960c5b9753b, type: 2}
+  UseSpriteCollider: 1
+  AdditionalComponents: []
+  IsRotatable: 1
+  UseFlipX: 0
+  IsEditable: 1

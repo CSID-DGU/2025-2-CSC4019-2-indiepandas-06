@@ -1,0 +1,49 @@
+# VCS
+.git
+.gitignore
+
+# Python 캐시/빌드 산출물
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+.eggs/
+dist/
+build/
+*.log
+
+# 가상환경/패키지
+.venv/
+env/
+venv/
+*.conda
+*.whl
+
+# 테스트/커버리지
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+.mypy_cache/
+.pytype/
+
+# 편집기/IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS 파일
+.DS_Store
+Thumbs.db
+
+# 환경변수/시크릿 (예시 파일은 포함 가능)
+.env
+.env.*
+!.env.example
+
+# Docker 관련
+docker-compose.override.yml
