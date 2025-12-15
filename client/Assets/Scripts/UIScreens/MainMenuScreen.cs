@@ -39,7 +39,7 @@ public sealed class MainMenuScreen : ScreenBase {
 
 	public override bool IsPrimary => true;
 	public override bool IsOverlay => false;
-	public override BackgroundMode BackgroundMode => BackgroundMode.StaticBackground;
+	public override BackgroundMode BackgroundMode => BackgroundMode.SceneBlur;
 
 
 

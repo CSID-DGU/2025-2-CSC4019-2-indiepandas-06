@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemId: WaterCan
   itemName: "\uBB3C\uBFCC\uB9AC\uAC1C"
+  itemDescription: "\uACBD\uC791\uC9C0\uC5D0 \uBB3C\uC744 \uC904 \uC218 \uC788\uB294
+    \uBB3C\uBFCC\uB9AC\uAC1C\uB2E4."
   itemType: 1
   isStackable: 0
   itemIconSprite: {fileID: 21300000, guid: 8c7ae8d0b29dd044882da7f8fc01219b, type: 3}

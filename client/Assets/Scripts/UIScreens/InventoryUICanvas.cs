@@ -15,6 +15,7 @@ public class InventoryUICanvas : ScreenBase {
     [SerializeField] private ScrollRect scrollRect;
 
     [SerializeField] private List<TabIconEntry> tabIconsList;
+    [SerializeField] private Button backButton;
     private Dictionary<ItemType, Sprite> tabIcons;
 
     [System.Serializable]
@@ -27,14 +28,24 @@ public class InventoryUICanvas : ScreenBase {
     private List<InventoryTabUI> tabUIs = new();
     private List<QuickSlotRegisterUI> quiclSlotUIs = new();
 
+    public virtual bool IsPrimary => true;
+	public virtual bool IsOverlay => false;
+	public virtual BackgroundMode BackgroundMode => BackgroundMode.Preserve;
+
+
     private void Awake() {
         tabIcons = new Dictionary<ItemType, Sprite>();
         foreach (var entry in tabIconsList) {
             tabIcons[entry.itemType] = entry.icon;
         }
+        BuildSlots();
     }
 
-    private void Start() {
+    private void Start() {   
+        HandleInventoryChanged();
+    }
+
+    private void BuildSlots() {
         for (int i = 0; i < maxSlotNum; i++) {
             var slot = Instantiate(slotPrefab, slotContainer);
             slot.Init(i);
@@ -53,8 +64,6 @@ public class InventoryUICanvas : ScreenBase {
             quickSlot.Init(i);
             quiclSlotUIs.Add(quickSlot);
         }
-        
-        HandleInventoryChanged();
     }
 
     protected override void Update() {
@@ -85,15 +94,22 @@ public class InventoryUICanvas : ScreenBase {
     }
 
     private void OnEnable() {
+        backButton.onClick.AddListener(OnClickBack);
         InventoryManager.Instance.OnInventoryChanged += HandleInventoryChanged;
-        quickSlotUI.gameObject.SetActive(false);
+        //quickSlotUI.gameObject.SetActive(false);
         HandleInventoryChanged();
     }
 
     private void OnDisable() {
+        backButton.onClick.RemoveListener(OnClickBack);
         InventoryManager.Instance.OnInventoryChanged -= HandleInventoryChanged;
-        quickSlotUI.gameObject.SetActive(true);
+        //quickSlotUI.gameObject.SetActive(true);
     }
+
+    private void OnClickBack() {
+        UIManager.CloseScreen(this);
+    }
+
 
 
     private void HandleInventoryChanged() {

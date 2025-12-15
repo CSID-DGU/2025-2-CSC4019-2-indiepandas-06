@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 3853418428697357498}
   - component: {fileID: 280466525910801913}
   - component: {fileID: 2697653336645374849}
+  - component: {fileID: -5051705725664138824}
   m_Layer: 0
   m_Name: Plant
   m_TagString: Untagged
@@ -75,7 +76,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -1493729409
-  m_SortingLayer: 3
+  m_SortingLayer: 4
   m_SortingOrder: 0
   m_Sprite: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -103,3 +104,17 @@ MonoBehaviour:
   elapsedGrowthTime: 0
   growthLevel: 0
   updateInterval: 1
+--- !u!114 &-5051705725664138824
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7506875585415890393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 465580cc682f3614a8dfb0cf5028f2e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spriteRenderer: {fileID: 280466525910801913}
+  outlineMaterial: {fileID: 2100000, guid: 97113fa422093424c9c0bfe6f082164a, type: 2}

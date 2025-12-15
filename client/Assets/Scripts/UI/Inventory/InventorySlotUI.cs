@@ -15,8 +15,7 @@ public class InventorySlotUI : MonoBehaviour, IPointerClickHandler, ILongPressab
     private int index;
 
     private void Start() {
-        countText.fontMaterial.SetFloat(ShaderUtilities.ID_OutlineWidth, 0.2f);
-        countText.fontMaterial.SetColor(ShaderUtilities.ID_OutlineColor, Color.black);
+        
     }
 
     public void Init(int slotIndex) {
@@ -51,7 +50,7 @@ public class InventorySlotUI : MonoBehaviour, IPointerClickHandler, ILongPressab
     public void OnLongPressed() {
         var item = InventoryManager.Instance.GetItemAt(index);
         if (item != null) {
-            ItemDragManager.CurrentDraggingItem = new QuickSlotEntry(InventoryManager.Instance.CurrentType, index);
+            ItemDragManager.CurrentDraggingItem = new QuickSlotEntry(InventoryManager.Instance.CurrentType, index, item.InstanceId.ToString());
             InventoryManager.Instance.BeginItemDrag(item.ItemData.ItemIconSprite);
         }
     }

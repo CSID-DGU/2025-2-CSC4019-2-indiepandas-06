@@ -93,8 +93,6 @@ public class FarmPlot : MonoBehaviour
 
     void Start() {
         Init();
-        // TODO 테스트용 당근 심기 삭제 필요
-        // PlantSeed(PlantDataBase.Instance.GetPlantData("Carrot"));
     }
 
     void Update() {
@@ -114,7 +112,7 @@ public class FarmPlot : MonoBehaviour
 
     public void HarvestPlant() {
         if(currentPlant != null && currentPlant.IsHarvestable()) {
-            // TODO 아이템 획득 로직 추가 필요
+            InventoryManager.Instance.AddItem(currentPlant.PlantData.ItemData);
             RemovePlant();
         }
     }

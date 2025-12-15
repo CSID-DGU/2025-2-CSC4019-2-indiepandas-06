@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e735f746ce4f9549b0127fbaee12d31, type: 3}
+  m_Name: CosmeticsData
+  m_EditorClassIdentifier: 
+  ObjectId: Cosmetics
+  ObjectName: "\uD654\uC7A5\uD488"
+  Sprites:
+  - {fileID: 21300000, guid: c28d974b27d23c546ab38c4bfcf572b8, type: 3}
+  LinkedItem: {fileID: 11400000, guid: 7a9f1b757f31ec441bdc8c021d28bb65, type: 2}
+  UseSpriteCollider: 1
+  AdditionalComponents: []
+  IsRotatable: 1
+  UseFlipX: 1
+  IsEditable: 1
+  Size: 1

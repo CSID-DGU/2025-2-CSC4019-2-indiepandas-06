@@ -10,17 +10,14 @@ public class GhostObject : MapObjectBase {
         base.Update();
 
         FollowMouse();
-
-        // TODO 회전 버튼 따로 만들기
-        if (InputManager.GetKeyDown(KeyAction.Jump)) {
-            RotateNext();
-        }
     }
 
     public void Init(MapObjectData newData = null) {
         base.Init(newData);
+        SetRotationIndex(0);
         
         if (newData != null) {
+            targetObject = null;
             isActive = true;
         }
     }
@@ -73,16 +70,19 @@ public class GhostObject : MapObjectBase {
     private void FollowMouse() {
         if (!isActive && !gameObject.activeSelf) { return; }
 
-        Vector3 mousePos = InputManager.PointPosition;
+        Vector3 mousePos = InputManager.PointPositionSafe;
         Vector3 worldPos = mainCam.ScreenToWorldPoint(mousePos);
         worldPos.z = 0f;
         // 그리드에 맞게 움직이기
         Vector3 gridPos = GridUtility.SnapToIsometricGrid(worldPos, data.Size);
         transform.position = gridPos;
-        Debug.Log($"Mouse: {InputManager.PointPosition}");
+        Debug.Log($"Mouse: {InputManager.PointPositionSafe}");
+        Debug.Log($"Current ActionMap: {UnityEngine.InputSystem.PlayerInput.GetPlayerByIndex(0)?.currentActionMap?.name}");
 
         if (InputManager.GetKeyUp(KeyAction.Click)) {
             BuildingModeManager.Instance.ConfirmPlacement();
         }
     }
+
+
 }

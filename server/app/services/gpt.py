@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-import asyncio
 import json
 import re
 from typing import Any, Dict, Tuple
 
-import httpx
-
+from app.core.bridge import ai_bridge  # Bridge 임포트
 from app.core.config import settings
 
 # ----------------------------
@@ -96,30 +94,16 @@ def _fallback_line(emotion: str, persona: str) -> str:
 
 
 # ----------------------------
-# GPT 서비스
+# GPT 서비스 (Bridge 적용 버전)
 # ----------------------------
 class GPTService:
     """
-    OpenAI 호환 Chat Completions API 호출기.
-    - 엔드포인트: settings.GPT_API_URL
-    - 모델: settings.GPT_MODEL
-    - 키: settings.GPT_API_KEY (Authorization: Bearer)
-    - 타임아웃: settings.REQUEST_TIMEOUT_S
+    WebSocket Bridge를 통해 로컬 AI 워커에게 생성을 요청하는 서비스.
     """
 
-    def __init__(
-        self, *, api_url: str | None = None, model: str | None = None, timeout: float | None = None
-    ):
-        self.api_url = api_url or str(settings.GPT_API_URL)
-        self.model = model or str(settings.GPT_MODEL)
-        self.timeout = timeout or float(settings.REQUEST_TIMEOUT_S)
-        self._client = httpx.AsyncClient(
-            timeout=self.timeout,
-            headers={
-                "Authorization": f"Bearer {settings.GPT_API_KEY}",
-                "Content-Type": "application/json",
-            },
-        )
+    def __init__(self):
+        # WebSocket 통신이므로 URL은 필요 없으나, 타임아웃 설정은 가져옴
+        self.timeout = float(settings.REQUEST_TIMEOUT_S)
 
     async def generate_line(
         self,
@@ -133,9 +117,11 @@ class GPTService:
         max_tokens: int = 80,
     ) -> Tuple[str, Dict[str, Any]]:
         """
-        NPC 대사 한 줄과 안전 정보 반환.
-        실패/차단 시 감정 기반 폴백 문구를 제공.
+        1) 서버에서 프롬프트 구성 (로직 일관성 유지)
+        2) Bridge를 통해 워커로 전송
+        3) 응답 수신 후 후처리 및 안전 검사
         """
+        # 1. 프롬프트 생성
         user_prompt = build_user_prompt(
             dialog_text=dialog_text,
             emotion=emotion,
@@ -144,83 +130,41 @@ class GPTService:
             locale=locale,
         )
 
-        body = {
-            "model": self.model,
-            "messages": [
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": user_prompt},
-            ],
+        payload = {
+            "user_prompt": user_prompt,
+            "system_prompt": SYSTEM_PROMPT,
             "temperature": temperature,
             "max_tokens": max_tokens,
         }
 
-        # 간단 재시도(네트워크/5xx): 2회
-        attempts = 3
-        backoff = 0.25
-        last_error: Exception | None = None
+        # 2. 로컬 워커 요청 (Bridge)
+        try:
+            resp_data = await ai_bridge.send_request_and_wait(
+                task_type="gpt",
+                payload=payload,
+                timeout=self.timeout,
+            )
 
-        for i in range(attempts):
-            try:
-                resp = await self._client.post(self.api_url, json=body)
-                resp.raise_for_status()
-                data = resp.json()
-                line = self._extract_text(data)
-                line = _postprocess(line)
-                safety = _safety_check(line)
+            # 3. 결과 파싱 및 후처리
+            line = self._extract_text(resp_data)
+            line = _postprocess(line)
+            safety = _safety_check(line)
 
-                if safety.get("blocked"):
-                    # 폴백 대사로 대체
-                    return _fallback_line(emotion, persona), {**safety, "fallback": True}
+            if safety.get("blocked"):
+                return _fallback_line(emotion, persona), {**safety, "fallback": True}
 
-                return line, {**safety, "fallback": False}
-            except (httpx.RequestError, httpx.HTTPStatusError) as e:
-                last_error = e
-                # 4xx는 재시도하지 않음
-                if isinstance(e, httpx.HTTPStatusError) and 400 <= e.response.status_code < 500:
-                    break
-                if i < attempts - 1:
-                    await asyncio.sleep(backoff)
-                    backoff *= 2
-                else:
-                    break
+            return line, {**safety, "fallback": False}
 
-        # 완전 실패 시 폴백
-        return _fallback_line(emotion, persona), {
-            "error": str(last_error) if last_error else "unknown",
-            "fallback": True,
-        }
+        except Exception as e:
+            # 에러 발생 시 폴백 반환
+            return _fallback_line(emotion, persona), {
+                "error": str(e),
+                "fallback": True,
+            }
 
-    # ----------------------------
-    # 내부: 다양한 OpenAI/호환 응답 스키마 처리
-    # ----------------------------
     @staticmethod
     def _extract_text(data: Dict[str, Any]) -> str:
         """
-        OpenAI 호환 응답에서 메시지 텍스트를 추출.
-        기본: data["choices"][0]["message"]["content"]
+        워커 응답 데이터에서 실제 텍스트 추출
         """
-        try:
-            choices = data.get("choices") or []
-            if not choices:
-                raise KeyError("choices is empty")
-            msg = choices[0].get("message") or {}
-            content = msg.get("content")
-            if not isinstance(content, str) or not content.strip():
-                raise KeyError("empty content")
-            return content
-        except Exception:
-            # 다른 공급자 형태(예: {"output_text": "..."} 등)도 시도
-            for k in ("output_text", "text", "answer"):
-                v = data.get(k)
-                if isinstance(v, str) and v.strip():
-                    return v
-            raise ValueError(f"Unsupported chat completion schema: {data!r}")
-
-    async def aclose(self) -> None:
-        await self._client.aclose()
-
-    async def __aenter__(self) -> "GPTService":
-        return self
-
-    async def __aexit__(self, exc_type, exc, tb) -> None:
-        await self.aclose()
+        return data.get("content", "")

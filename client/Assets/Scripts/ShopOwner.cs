@@ -12,7 +12,7 @@ using UnityEditor;
 // Shop Owner
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-public class ShopOwner : MonoBehaviour, IInteractable {
+public class ShopOwner : MonoBehaviour {
 
 	// Editor
 
@@ -30,7 +30,7 @@ public class ShopOwner : MonoBehaviour, IInteractable {
 				var entry = I.ItemList[i];
 				PrefixLabel(entry.item ? entry.item.ItemName : "Empty");
 				entry.item = ObjectField(entry.item);
-				entry.price = EditorGUILayout.FloatField(entry.price, GUILayout.Width(50));
+				entry.price = EditorGUILayout.IntField(entry.price, GUILayout.Width(50));
 				entry.quantity = EditorGUILayout.IntField(entry.quantity, GUILayout.Width(50));
 				if (Button("-", GUILayout.Width(20))) {
 					I.ItemList.RemoveAt(i);
@@ -51,7 +51,7 @@ public class ShopOwner : MonoBehaviour, IInteractable {
 				var entry = I.FeatureList[i];
 				PrefixLabel(string.IsNullOrEmpty(entry.name) ? "Empty" : entry.name);
 				entry.icon = ObjectField(entry.icon);
-				entry.price = EditorGUILayout.FloatField(entry.price, GUILayout.Width(50));
+				entry.price = EditorGUILayout.IntField(entry.price, GUILayout.Width(50));
 				entry.quantity = EditorGUILayout.IntField(entry.quantity, GUILayout.Width(50));
 				if (Button("-", GUILayout.Width(20))) {
 					I.FeatureList.RemoveAt(i);
@@ -126,7 +126,7 @@ public class ShopOwner : MonoBehaviour, IInteractable {
 
 	// Methods
 
-	public void Interact(GameObject interactor) {
+	public void OpenShop() {
 		UIManager.ShopItemList = ItemList;
 		UIManager.ShopFeatureList = FeatureList;
 		UIManager.OpenScreen(Screen.Shop);

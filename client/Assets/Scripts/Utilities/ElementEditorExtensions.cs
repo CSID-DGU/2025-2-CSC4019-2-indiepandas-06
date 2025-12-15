@@ -308,7 +308,7 @@ public static class ElementEditorExtensions {
 		T value, Action<T> onValueChanged) where T : Object {
 		var element = new ObjectField() { value = value };
 		element.RegisterValueChangedCallback(callback => {
-			onValueChanged(callback.newValue as T);
+			onValueChanged((T)callback.newValue);
 		});
 		element.style.width = Node1U - 8f;
 		return element;
@@ -318,7 +318,7 @@ public static class ElementEditorExtensions {
 		string label, T value, Action<T> onValueChanged) where T : Object {
 		var element = new ObjectField(label) { value = value };
 		element.RegisterValueChangedCallback(callback => {
-			onValueChanged(callback.newValue as T);
+			onValueChanged((T)callback.newValue);
 		});
 		element.style.width = Node2U - 8f;
 		element.labelElement.style.minWidth = Node2ULabel;

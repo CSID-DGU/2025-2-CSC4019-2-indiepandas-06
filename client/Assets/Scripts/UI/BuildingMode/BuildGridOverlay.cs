@@ -52,14 +52,18 @@ public class BuildGridOverlay : MonoBehaviour
         for (int x = bounds.xMin; x < bounds.xMax; x++) {
             for (int y = bounds.yMin; y < bounds.yMax; y++) {
                 var pos = new Vector3Int(x, y, 0);
-                overlayTilemap.SetTile(pos, overlayCellTile);
+
+                // groundTilemap에 타일이 존재하는 셀만 표시
+                if (groundTilemap.HasTile(pos)) {
+                    overlayTilemap.SetTile(pos, overlayCellTile);
+                }
             }
         }
 
         built = true;
     }
 
-    /// 건축모드 토글에서 호출
+    // 건축모드 토글에서 호출
     public void Show(bool on) {
         if (!built) BuildOnce();
         var r = overlayTilemap.GetComponent<TilemapRenderer>();

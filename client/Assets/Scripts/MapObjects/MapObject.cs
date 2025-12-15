@@ -120,4 +120,16 @@ public class MapObject : MapObjectBase, ILongPressable, IClickable {
             BuildingModeManager.Instance.SelectObject(this);
         }
     }
+
+    public void Remove() {
+        if (data != null) {
+            InventoryManager.Instance.AddItem(new MapObjectItem(data.LinkedItem));
+        }
+        // TODO 테스트
+        UIManager.ShowAlert("성공적으로 제거하였습니다.", "넹", "테스트", () => {
+            Debug.Log("Alert closed!");
+        });
+
+        Destroy(gameObject);
+    }
 }

@@ -12,6 +12,11 @@ public enum BackgroundMode {
 	Preserve,
 }
 
+public enum InputPolicy {
+	PlayerOnly,
+	UIOnly,
+	Both,
+}
 
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -33,6 +38,7 @@ public abstract class ScreenBase : MonoBehaviour {
 	public virtual bool IsPrimary => false;
 	public virtual bool IsOverlay => true;
 	public virtual BackgroundMode BackgroundMode => BackgroundMode.Preserve;
+	public virtual InputPolicy InputPolicy => InputPolicy.UIOnly;
 	/*
 	Is Primary: 참일 경우 이 스크린이 열릴 때 다른 스크린들을 전부 닫음
 	Is Overlay: 참일 경우 이 스크린이 열린 상태에서 다른 스크린이 열리면 이 스크린은 가려짐

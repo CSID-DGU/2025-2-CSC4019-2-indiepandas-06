@@ -28,7 +28,13 @@ public class Yejin : Actor {
 			LabelField("Physics", EditorStyles.boldLabel);
 			I.Speed = FloatField("Speed", I.Speed);
 			Space();
-
+			LabelField("Schedule", EditorStyles.boldLabel);
+			I.Scheduler = ObjectField("Scheduler", I.Scheduler);
+			if (I.Scheduler) {
+				BeginDisabledGroup();
+				LabelField("Behavior", I.BehaviorName);
+				EndDisabledGroup();
+			}
 			End();
 		}
 	}

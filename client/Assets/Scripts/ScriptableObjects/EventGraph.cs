@@ -28,12 +28,8 @@ public class EventGraph : ScriptableObject {
 	class EventGraphSOEditor : EditorExtensions {
 		EventGraph I => target as EventGraph;
 		public override void OnInspectorGUI() {
-			Begin();
-
-			if (Button("Open Event Graph")) I.Open();
-			Space();
-
-			End();
+			base.OnInspectorGUI(); 
+			if (GUILayout.Button("Open Event Graph")) I.Open();
 		}
 	}
 	#endif
@@ -62,7 +58,7 @@ public class EventGraph : ScriptableObject {
 	// Methods
 
 	#if UNITY_EDITOR
-	public void Open() => EventGraphWindow.Open(name, this);
+	public void Open() => EventGraphWindow.Open(this);
 
 	[OnOpenAsset]
 	public static bool OnOpen(int instanceID) {
@@ -74,6 +70,73 @@ public class EventGraph : ScriptableObject {
 		return false;
 	}
 	#endif
+
+
+
+	public void CopyFrom(EventGraph other) {
+		var map = new Dictionary<string, EventBase>();
+		var stack = new Stack<EventBase>();
+		stack.Push(other.Entry);
+		while (stack.Count > 0) {
+			var orig = stack.Pop();
+			if (orig == null) continue;
+			if (map.ContainsKey(orig.Guid)) continue;
+			var type = orig.GetType();
+			var copy = Activator.CreateInstance(type) as EventBase;
+			if (copy == null) continue;
+			copy.CopyFrom(orig);
+			map.Add(orig.Guid, copy);
+			if (orig.Prevs != null) {
+				foreach (var c in orig.Prevs) if (c.eventBase != null) stack.Push(c.eventBase);
+			}
+			if (orig.Nexts != null) {
+				foreach (var c in orig.Nexts) if (c.eventBase != null) stack.Push(c.eventBase);
+			}
+		}
+		foreach (var kv in map) {
+			var node = kv.Value;
+			var newPrevs = new List<EventBase.Connection>();
+			if (node.Prevs != null) {
+				foreach (var conn in node.Prevs) {
+					var origTarget = conn.eventBase;
+					if (origTarget == null) continue;
+					if (map.TryGetValue(origTarget.Guid, out var mapped)) {
+						newPrevs.Add(new EventBase.Connection {
+							eventBase = mapped,
+							iPort     = conn.iPort,
+							oPort     = conn.oPort,
+							iPortType = conn.iPortType,
+							oPortType = conn.oPortType,
+						});
+					}
+				}
+			}
+			node.Prevs = newPrevs;
+			var newNexts = new List<EventBase.Connection>();
+			if (node.Nexts != null) {
+				foreach (var conn in node.Nexts) {
+					var origTarget = conn.eventBase;
+					if (origTarget == null) continue;
+					if (map.TryGetValue(origTarget.Guid, out var mapped)) {
+						newNexts.Add(new EventBase.Connection {
+							eventBase = mapped,
+							iPort     = conn.iPort,
+							oPort     = conn.oPort,
+							iPortType = conn.iPortType,
+							oPortType = conn.oPortType,
+						});
+					}
+				}
+			}
+			node.Nexts = newNexts;
+		}
+		if (map.TryGetValue(other.Entry.Guid, out var newEntry)) {
+			m_Entry = newEntry as EntryEvent;
+		} else {
+			m_Entry = new EntryEvent();
+		}
+		m_Clone = null;
+	}
 }
 
 
@@ -89,9 +152,8 @@ public class EventGraphWindow : EditorWindow {
 
 	Toolbar m_Toolbar;
 	EventGraphView m_EventGraphView;
+	[SerializeField] int m_EventGraphID; 
 	EventGraph m_EventGraph;
-
-
 
 	// Properties
 
@@ -103,21 +165,28 @@ public class EventGraphWindow : EditorWindow {
 		get => m_EventGraphView;
 		set => m_EventGraphView = value;
 	}
-	EventGraph EventGraph {
-		get => m_EventGraph;
-		set => m_EventGraph = value;
+
+	public EventGraph EventGraph {
+		get {
+			if (m_EventGraph == null && m_EventGraphID != default) {
+				m_EventGraph = (EventGraph)EditorUtility.InstanceIDToObject(m_EventGraphID);
+			}
+			return m_EventGraph;
+		}
+		set {
+			m_EventGraph = value;
+			m_EventGraphID = value ? value.GetInstanceID() : default;
+		}
 	}
-
-
 
 	// Methods
 
-	public static void Open(string name, EventGraph eventGraph) {
+	public static void Open(EventGraph eventGraph) {
 		var windows = Resources.FindObjectsOfTypeAll<EventGraphWindow>();
 		var existingWindow = windows.FirstOrDefault(window => window.EventGraph == eventGraph);
 		if (existingWindow == null) {
 			var dock = new[] { typeof(EventGraphWindow), typeof(SceneView) };
-			var window = CreateWindow<EventGraphWindow>(name, dock);
+			var window = CreateWindow<EventGraphWindow>(eventGraph.name, dock);
 			window.EventGraph = eventGraph;
 			window.Initialize();
 		} else existingWindow.Focus();
@@ -140,12 +209,14 @@ public class EventGraphWindow : EditorWindow {
 		mainContainer.Add(EventGraphView);
 	}
 
-
-
 	// Lifecycle
 
 	void OnGUI() {
 		if (EventGraphView == null) Initialize();
+		if (EventGraphView.EventGraph == null && EventGraph != null) {
+			EventGraphView.EventGraph = EventGraph;
+			EventGraphView.Load();
+		}
 	}
 }
 #endif
@@ -172,7 +243,8 @@ public class EventGraphView : GraphView {
 		get => m_IsFramed;
 		set => m_IsFramed = value;
 	}
-	EventGraph EventGraph {
+
+	public EventGraph EventGraph {
 		get => m_EventGraph;
 		set => m_EventGraph = value;
 	}
@@ -206,7 +278,7 @@ public class EventGraphView : GraphView {
 				Save();
 			}
 		});
-		Load();
+		if(EventGraph != null) Load();
 	}
 
 
@@ -220,9 +292,11 @@ public class EventGraphView : GraphView {
 				populateEvent.menu.AppendAction("Create Node/"+ dropdown, _ => {
 					var name = Regex.Replace(dropdown.Split('/')[^1], @"\s+", "");
 					var type = Type.GetType(name + "Event");
-					var node = CreateNode(type, position);
-					node.ConstructData();
-					node.ConstructPort();
+					if (type != null) {
+						var node = CreateNode(type, position);
+						node.ConstructData();
+						node.ConstructPort();
+					}
 				});
 			}
 			populateEvent.menu.AppendSeparator();
@@ -318,54 +392,65 @@ public class EventGraphView : GraphView {
 			var eventBase = stack.Pop();
 			if (eventBase == null) continue;
 			if (cache.ContainsKey(eventBase.Guid)) continue;
+
 			var node = CreateNode(eventBase.GetType(), eventBase.Position);
-			node.target.CopyFrom(eventBase);
-			node.ConstructData();
-			node.ConstructPort();
-			cache.Add(eventBase.Guid, node);
-			foreach (var prev in eventBase.Prevs) stack.Push(prev.eventBase);
-			foreach (var next in eventBase.Nexts) stack.Push(next.eventBase);
+			if (node != null) {
+				node.target.CopyFrom(eventBase);
+				node.ConstructData();
+				node.ConstructPort();
+				cache.Add(eventBase.Guid, node);
+				foreach (var prev in eventBase.Prevs) stack.Push(prev.eventBase);
+				foreach (var next in eventBase.Nexts) stack.Push(next.eventBase);
+			}
 		}
+
 		foreach (var (_, node) in cache) {
 			var eventBase = node.target;
 			var node_oPorts = node.outputContainer.Children().OfType<Port>().ToList();
 			if (eventBase.Nexts != null) for (int i = 0; i < eventBase.Nexts.Count; i++) {
 				if (eventBase.Nexts[i].eventBase == null) continue;
-				var next = cache[eventBase.Nexts[i].eventBase.Guid];
-				var next_iPorts = next.inputContainer.Children().OfType<Port>().ToList();
-				var nodeOPort = node_oPorts[eventBase.Nexts[i].oPort];
-				var nextIPort = next_iPorts[eventBase.Nexts[i].iPort];
-				AddElement(nodeOPort.ConnectTo(nextIPort));
+				if (cache.TryGetValue(eventBase.Nexts[i].eventBase.Guid, out var next)) {
+					var next_iPorts = next.inputContainer.Children().OfType<Port>().ToList();
+					if(eventBase.Nexts[i].oPort < node_oPorts.Count && eventBase.Nexts[i].iPort < next_iPorts.Count) {
+						var nodeOPort = node_oPorts[eventBase.Nexts[i].oPort];
+						var nextIPort = next_iPorts[eventBase.Nexts[i].iPort];
+						AddElement(nodeOPort.ConnectTo(nextIPort));
+					}
+				}
 			}
 		}
+
 		foreach (var (_, node) in cache) {
 			var eventBase = node.target;
 			var prev = new List<EventBase.Connection>();
 			foreach (var connection in eventBase.Prevs) {
-				if (connection.eventBase == null) continue;
-				prev.Add(new() {
-					eventBase = cache[connection.eventBase.Guid].target,
-					iPort     = connection.iPort,
-					oPort     = connection.oPort,
-					iPortType = connection.iPortType,
-					oPortType = connection.oPortType,
-				});
+				if (connection.eventBase != null && cache.ContainsKey(connection.eventBase.Guid)) {
+					prev.Add(new() {
+						eventBase = cache[connection.eventBase.Guid].target,
+						iPort     = connection.iPort,
+						oPort     = connection.oPort,
+						iPortType = connection.iPortType,
+						oPortType = connection.oPortType,
+					});
+				}
 			}
 			eventBase.Prevs = prev;
 			var next = new List<EventBase.Connection>();
 			foreach (var connection in eventBase.Nexts) {
-				if (connection.eventBase == null) continue;
-				next.Add(new() {
-					eventBase = cache[connection.eventBase.Guid].target,
-					iPort     = connection.iPort,
-					oPort     = connection.oPort,
-					iPortType = connection.iPortType,
-					oPortType = connection.oPortType,
-				});
+				if (connection.eventBase != null && cache.ContainsKey(connection.eventBase.Guid)) {
+					next.Add(new() {
+						eventBase = cache[connection.eventBase.Guid].target,
+						iPort     = connection.iPort,
+						oPort     = connection.oPort,
+						iPortType = connection.iPortType,
+						oPortType = connection.oPortType,
+					});
+				}
 			}
 			eventBase.Nexts = next;
 		}
-		EventGraph.Clone = cache[EventGraph.Entry.Guid].target as EntryEvent;
+		if(cache.ContainsKey(EventGraph.Entry.Guid))
+			EventGraph.Clone = cache[EventGraph.Entry.Guid].target as EntryEvent;
 	}
 }
 #endif

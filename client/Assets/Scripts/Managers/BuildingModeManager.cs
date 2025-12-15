@@ -37,8 +37,8 @@ public class BuildingModeManager : MonoSingleton<BuildingModeManager> {
     }
 
     public void ShowGhost(MapObjectData data) {
-        ghostObject.SetActive(true);
         ghostInstance.Init(data);
+        ghostObject.SetActive(true);
     }
 
     public void ShowGhost(MapObject mapObject) {

@@ -50,6 +50,7 @@ public class GameScreen : ScreenBase {
 			I.InteractableTransform = ObjectField("Interactable Transform", I.InteractableTransform);
 			I.InteractableNameUGUI  = ObjectField("Interactable Name UGUI", I.InteractableNameUGUI);
 			I.InteractableTypeUGUI  = ObjectField("Interactable Type UGUI", I.InteractableTypeUGUI);
+			I.InteractableTypeUGUIBox  = ObjectField("Interactable Type UGUI Box", I.InteractableTypeUGUIBox);
 			Space();
 			LabelField("Gem Collect Message", EditorStyles.boldLabel);
 			I.MessageTransform      = ObjectField("Message Transform",       I.MessageTransform);
@@ -92,6 +93,7 @@ public class GameScreen : ScreenBase {
 	[SerializeField] RectTransform m_InteractableTransform;
 	[SerializeField] TextMeshProUGUI m_InteractableNameUGUI;
 	[SerializeField] TextMeshProUGUI m_InteractableTypeUGUI;
+	[SerializeField] Image m_InteractableTypeUGUIBox;
 
 	[SerializeField] RectTransform m_MessageTransform;
 	[SerializeField] Image m_MessageIconImage;
@@ -108,6 +110,9 @@ public class GameScreen : ScreenBase {
 	public override bool IsPrimary => true;
 	public override bool IsOverlay => false;
 	public override BackgroundMode BackgroundMode => BackgroundMode.Scene;
+    public override InputPolicy InputPolicy => InputPolicy.Both;
+
+	private InteractableObjectOutliner lastOutliner;
 
 
 
@@ -122,6 +127,11 @@ public class GameScreen : ScreenBase {
 	TextMeshProUGUI InteractableTypeUGUI {
 		get => m_InteractableTypeUGUI;
 		set => m_InteractableTypeUGUI = value;
+	}
+
+	Image InteractableTypeUGUIBox {
+		get => m_InteractableTypeUGUIBox;
+		set => m_InteractableTypeUGUIBox = value;
 	}
 
 
@@ -232,16 +242,17 @@ public class GameScreen : ScreenBase {
 
 	public override void Show() {
 		base.Show();
-		if (GameManager.GameState == GameState.Paused) {
-			GameManager.GameState = GameState.Gameplay;
-		}
+		// GameState 변경은 Policy 기반으로 Update로 이전
+		//if (GameManager.GameState == GameState.Paused) {
+		//	GameManager.GameState = GameState.Gameplay;
+		//}
 	}
 
 	public override void Hide() {
 		base.Hide();
-		if (GameManager.GameState == GameState.Gameplay) {
-			GameManager.GameState = GameState.Paused;
-		}
+		//if (GameManager.GameState == GameState.Gameplay) {
+		//	GameManager.GameState = GameState.Paused;
+		//}
 	}
 
 	public override void Back() {
@@ -255,9 +266,12 @@ public class GameScreen : ScreenBase {
 	void Start() {
 		InteractableTransform.gameObject.SetActive(false);
 		MessageTransform.gameObject.SetActive(false);
+		
+		UIManager.ApplyInputPolicyFromStack();
 	}
 
 	protected override void Update() {
+		/*
 		switch (UIManager.CurrentScreen) {
 			case Screen.Debug:
 			case Screen.Game: {
@@ -272,36 +286,76 @@ public class GameScreen : ScreenBase {
 				}
 			} break;
 		}
+		*/
+		var policy = UIManager.GetEffectiveInputPolicy();
+		bool allowGameplay = policy != InputPolicy.UIOnly;
+
+		GameManager.GameState = allowGameplay ? GameState.Gameplay : GameState.Paused;
+
+		if (allowGameplay && InputManager.GetKeyUp(KeyAction.Menu)) {
+			Back();
+		}
 	}
 
 	void LateUpdate() {
-		var (gameObject, interactable) = GameManager.Player.GetNearestInteractable();
+		var (interactableObject, interactable) = GameManager.Player.GetNearestInteractable();
 		bool match = true;
 		match &= interactable != null && interactable.IsInteractable;
 		match &= GameManager.GameState == GameState.Gameplay;
 		if (match) {
+			var newOutliner = interactableObject.GetComponentInChildren<InteractableObjectOutliner>();
+			if (lastOutliner != newOutliner) {
+				// 이전 대상 외곽선 제거
+				if (lastOutliner != null) {
+					lastOutliner.SetOutline(false);
+				}
+
+				// 새로운 대상 외곽선 적용
+				if (newOutliner != null) {
+					newOutliner.SetOutline(true, Color.white, 1f);
+				}
+
+				lastOutliner = newOutliner;
+			}
+			// UI 표시
 			InteractableTransform.gameObject.SetActive(true);
 			var aWorldPos = GameManager.Player.transform.position;
-			var bWorldPos = gameObject.transform.position;
+			var bWorldPos = interactableObject.transform.position;
 			var aScreenPos = CameraManager.WorldToScreenPoint(aWorldPos);
 			var bScreenPos = CameraManager.WorldToScreenPoint(bWorldPos);
 			var namePos = bScreenPos + new Vector3(0f, 150f, 0f);
 			InteractableNameUGUI.rectTransform.position = namePos;
-			InteractableNameUGUI.text = gameObject.name switch {
+			InteractableNameUGUI.text = interactableObject.name switch {
 				"Yejin"  => "예진",
+				"NPC1" => "강민",
+				"NPC2" => "다솔",
+				"NPC3" => "동수",
+				"NPC4" => "은지",
+				"Counselor" => "수정",
+				"NPCDetective" => "탐정 고난",
+				"Ghost" => "유령",
 				"Minsu"  => "민수",
 				"People" => "사람들",
-				_ => gameObject.name,
+				_ => interactableObject.name,
 			};
 			var typePos = Vector3.Lerp(aScreenPos, bScreenPos, 0.5f) + new Vector3(0f, -50f, 0f);
-			InteractableTypeUGUI.rectTransform.position = typePos;
+			InteractableTypeUGUIBox.rectTransform.position = typePos;
 			InteractableTypeUGUI.text = interactable.InteractionType switch {
 				InteractionType.Talk  => "말하기",
 				InteractionType.Trade => "거래하기",
+				InteractionType.BuildingEntry => "입장하기",
+				InteractionType.BuildingExit => "퇴장하기",
+				InteractionType.Fishing => "낚시하기",
 				_ => "상호작용",
 			};
 		} else {
 			InteractableTransform.gameObject.SetActive(false);
+			
+			// 외곽선 해제
+			if (lastOutliner != null) {
+				lastOutliner.SetOutline(false);
+				lastOutliner = null;
+			}
 		}
 
 		if (0f < MessageTimer) {

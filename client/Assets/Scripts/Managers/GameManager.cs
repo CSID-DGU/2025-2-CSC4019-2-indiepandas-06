@@ -115,6 +115,7 @@ public class GameManager : MonoSingleton<GameManager> {
 	public static GameState GameState {
 		get => Instance.m_GameState;
 		set {
+			/*
 			if (Instance.m_GameState != value) {
 				Instance.m_GameState = value;
 				InputManager.SwitchActionMap(value switch {
@@ -124,6 +125,10 @@ public class GameManager : MonoSingleton<GameManager> {
 					_ => default,
 				});
 			}
+			*/
+			if (Instance.m_GameState == value) return;
+			var prev = Instance.m_GameState;
+			Instance.m_GameState = value;
 		}
 	}
 	public static float TimeScale {
@@ -187,6 +192,7 @@ public class GameManager : MonoSingleton<GameManager> {
 		}
 	}
 
+	/*
 	static void UpdateInstances() {
 		if (GameState == GameState.Paused) return;
 		int i = 0;
@@ -215,7 +221,49 @@ public class GameManager : MonoSingleton<GameManager> {
 			}
 		}
 	}
+	*/
 
+	static void UpdateInstances() {
+        // Paused면 대화 이벤트도 멈춤
+        // if (GameState == GameState.Paused) return;
+        
+        int i = 0;
+        
+        while (i < EventList.Count) {
+            var (eventID, eventBase, startTime) = EventList[i];
+            
+            // StartTime 안전장치
+            if (startTime == 0f) {
+                eventBase.Start();
+                
+                float now = Time.time;
+                if (now == 0f) now = 0.00001f; 
+                
+                EventList[i] = (eventID, eventBase, now);
+                continue; 
+            }
+
+            if (eventBase.Update() == false) {
+                i++;
+                continue;
+            }
+
+            // 종료 처리 로직
+            eventBase.End();
+            eventBase.GetNexts(EventBuffer);
+            int numNexts = EventBuffer.Count;
+
+            if (numNexts == 0) {
+                if (--EventInstance[eventID] == 0) EventInstance.Remove(eventID);
+                EventList.RemoveAt(i);
+            } else {
+                if (1 < numNexts) EventInstance[eventID] += (byte)(numNexts - 1);
+                EventList[i] = (eventID, EventBuffer[0], 0f);
+                for (int j = 1; j < numNexts; j++) EventList.Add((eventID, EventBuffer[j], 0f));
+                EventBuffer.Clear();
+            }
+        }
+    }
 
 
 	// Event Methods
@@ -273,8 +321,8 @@ public class GameManager : MonoSingleton<GameManager> {
 	// Lifecycle
 
 	void Start() {
-		GameState = GameState.Gameplay;
-		UIManager.OpenScreen(Screen.Game);
+		GameState = GameState.Paused;
+		UIManager.OpenScreen(Screen.MainMenu);
 	}
 
 	void Update() {

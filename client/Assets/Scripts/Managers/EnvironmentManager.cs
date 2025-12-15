@@ -55,6 +55,7 @@ public class EnvironmentManager : MonoSingleton<EnvironmentManager> {
 			Begin();
 
 			LabelField("Main Light", EditorStyles.boldLabel);
+			/*
 			BeginHorizontal();
 			PrefixLabel("Day Color Intensity");
 			DayColor = ColorField(DayColor);
@@ -65,6 +66,13 @@ public class EnvironmentManager : MonoSingleton<EnvironmentManager> {
 			NightColor = ColorField(NightColor);
 			NightIntensity = EditorGUILayout.FloatField(NightIntensity, GUILayout.Width(60f));
 			EndHorizontal();
+			*/
+
+			// 그라데이션 필드
+			DayNightGradient = EditorGUILayout.GradientField("Color Gradient", DayNightGradient);
+			// 밝기 커브 필드
+			IntensityCurve = EditorGUILayout.CurveField("Intensity Curve", IntensityCurve);
+
 			DayLength = FloatField("Day Length",  DayLength);
 			TimeOfDay = FloatField("Time of Day", TimeOfDay);
 			IntentLevel++;
@@ -159,11 +167,15 @@ public class EnvironmentManager : MonoSingleton<EnvironmentManager> {
 
 
 	// Fields
-
+	/*
 	[SerializeField] Color m_DayColor = new(1.0f, 1.0f, 1.0f, 0f);
 	[SerializeField] Color m_NightColor = new(0.1f, 0.1f, 0.3f, 0f);
 	[SerializeField] float m_DayIntensity = 1.0f;
 	[SerializeField] float m_NightIntensity = 0.5f;
+	*/
+
+	[SerializeField] Gradient m_DayNightGradient;
+	[SerializeField] AnimationCurve m_IntensityCurve;
 
 	Light2D m_MainLight;
 	[SerializeField] float m_DayLength = 300f;
@@ -186,6 +198,7 @@ public class EnvironmentManager : MonoSingleton<EnvironmentManager> {
 		Instance.TryGetComponent(out Instance.m_MainLight) ?
 		Instance.m_MainLight : null;
 
+	/*
 	static float DayIntensity {
 		get => Instance.m_DayIntensity;
 		set => Instance.m_DayIntensity = value;
@@ -202,6 +215,15 @@ public class EnvironmentManager : MonoSingleton<EnvironmentManager> {
 		get => Instance.m_NightColor;
 		set => Instance.m_NightColor = value;
 	}
+	*/
+	public static Gradient DayNightGradient {
+		get => Instance.m_DayNightGradient;
+		set => Instance.m_DayNightGradient = value;
+	}
+	public static AnimationCurve IntensityCurve {
+		get => Instance.m_IntensityCurve;
+		set => Instance.m_IntensityCurve = value;
+	}
 
 	public static float DayLength {
 		get => Instance.m_DayLength;
@@ -213,6 +235,7 @@ public class EnvironmentManager : MonoSingleton<EnvironmentManager> {
 			if (Instance.m_TimeOfDay != value) {
 				Instance.m_TimeOfDay = value;
 				float t = value % 1f;
+				/*
 				float blend = t switch {
 					>= 0.3f and < 0.7f => 1f,
 					>= 0.2f and < 0.3f => Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0.2f, 0.3f, t)),
@@ -221,6 +244,14 @@ public class EnvironmentManager : MonoSingleton<EnvironmentManager> {
 				};
 				MainLight.color = Color.Lerp(NightColor, DayColor, blend);
 				MainLight.intensity = Mathf.Lerp(NightIntensity, DayIntensity, blend);
+				*/
+				if (DayNightGradient != null) {
+					MainLight.color = DayNightGradient.Evaluate(t);
+				}
+				
+				if (IntensityCurve != null) {
+					MainLight.intensity = IntensityCurve.Evaluate(t);
+				}
 			}
 		}
 	}

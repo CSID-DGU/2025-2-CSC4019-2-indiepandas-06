@@ -29,6 +29,14 @@ public class Player : Actor {
 			LabelField("Physics", EditorStyles.boldLabel);
 			I.Speed = FloatField("Speed", I.Speed);
 			Space();
+			LabelField("Accessory", EditorStyles.boldLabel);
+			DictionaryField("Accessory Table", I.AccessoryTable, (list, index) => {
+				var pair = list[index];
+				pair.key = TextField(pair.key);
+				pair.value = ObjectField(pair.value);
+				list[index] = pair;
+			}, ($"New Key {I.AccessoryTable.Count}", default));
+			Space();
 
 			End();
 		}
@@ -94,12 +102,30 @@ public class Player : Actor {
 				GameManager.Player.GetComponent<ToolManager>()?.UseTool();
 			}
 		}
+
+
+
+		/*Accessory Test Code*/
+		if (InputManager.GetKeyDown(KeyAction.Jump)) {
+			var keys = new List<string>(AccessoryTable.Keys);
+			var name = keys[Random.Range(0, keys.Count)];
+			if (!HasAccessory(name)) AddAccessory(name);
+			else RemoveAccessory(name);
+		}
+		/**/
 	}
 
 	protected override void Act() {
 		base.Act();
 		if (PathPoints.Count == 0) {
 			Body.linearVelocity = GameManager.GridMultiplier * MoveVector * Speed;
+		}
+	}
+
+	protected override void Draw() {
+		if (State == State.Idle || State == State.Moving) {
+			State = (0.1f < MoveVector.magnitude) ? State.Moving : State.Idle;
+			FlipX = (MoveVector.x != 0f) ? MoveVector.x < 0f : FlipX;
 		}
 	}
 }

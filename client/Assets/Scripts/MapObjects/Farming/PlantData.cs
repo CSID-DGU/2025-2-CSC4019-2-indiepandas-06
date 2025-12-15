@@ -11,5 +11,7 @@ public class PlantData : ScriptableObject
     public float GrowthTime => growthTime;
     [SerializeField] private Sprite[] growthSprites;
     public Sprite[] GrowthSprites => (Sprite[])growthSprites.Clone();
+    [SerializeField] private ItemData itemData;
+    public ItemData ItemData => itemData;
 
 }

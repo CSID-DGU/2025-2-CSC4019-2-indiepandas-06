@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 917388ea3f62235449372833b2042320, type: 3}
+  m_Name: TVItemData
+  m_EditorClassIdentifier: 
+  itemId: TVItem
+  itemName: TV
+  itemDescription: "42\uC778\uCE58 TV\uB2E4."
+  itemType: 5
+  isStackable: 1
+  itemIconSprite: {fileID: -5509753353421974763, guid: 17cc9416351d01a4788ce84acbf971ec, type: 3}
+  isTool: 0
+  itemClassName: MapObjectItem
+  toolClassName: 
+  holdingSprite: {fileID: 0}

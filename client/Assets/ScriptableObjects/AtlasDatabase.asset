@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4280edf0422829c42a56b8a33ed08480, type: 3}
+  m_Name: AtlasDatabase
+  m_EditorClassIdentifier: 
+  entries:
+  - key: UISprites
+    atlas: {fileID: 100100200, guid: 8e902a89ece01c64ca62f7f7fe77a207, type: 3}
+  - key: Dialogue
+    atlas: {fileID: 100100200, guid: 5d8f2231aab341745b6350a5973deb48, type: 3}

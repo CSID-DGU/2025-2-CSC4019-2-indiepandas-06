@@ -30,7 +30,10 @@ public class QuickSlotRegisterUI : MonoBehaviour, IDropHandler, ILongPressable {
     }
 
     public void OnDrop(PointerEventData eventData) {
-        Debug.Log("드랍!");
+        if (!InventoryManager.Instance.IsDragging) {
+            return;
+        }
+        
         var dragItemEntry = ItemDragManager.CurrentDraggingItem;
         QuickSlotManager.Instance.SetItem(index, dragItemEntry.itemType, dragItemEntry.indexInInventory);
         UpdateUI();

@@ -1,8 +1,9 @@
-/*
 using UnityEngine;
+using System.Collections.Generic;
 
 #if UNITY_EDITOR
-using static EditorVisualElement;
+using UnityEditor.Experimental.GraphView;
+using static ElementEditorExtensions;
 #endif
 
 
@@ -172,4 +173,172 @@ public class CalculatePathEvent : EventBase {
 		}
 	}
 }
-*/
+
+
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Game Manager | Get Behavior Name
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[NodeMenu("Actor/Get Behavior Name")]
+public class GetBehaviorNameEvent : EventBase {
+
+	// Node
+
+	#if UNITY_EDITOR
+	public class GetBehaviorNameEventNode : EventNodeBase {
+		GetBehaviorNameEvent I => target as GetBehaviorNameEvent;
+
+		public GetBehaviorNameEventNode() : base() {
+			mainContainer.style.width = Node1U;
+		}
+
+		public override void ConstructData() {
+			var instance = ObjectField(I.instance, value => I.instance = value);
+			var behavior = TextField(I.behaviorName, value => I.behaviorName = value);
+			behavior.textEdition.placeholder = "Behavior Name";
+			mainContainer.Add(instance);
+			mainContainer.Add(behavior);
+		}
+
+		public override void ConstructPort() {
+			CreatePort(Direction.Input);
+			CreatePort(Direction.Output).portName = "True";
+			CreatePort(Direction.Output).portName = "False";
+			RefreshExpandedState();
+			RefreshPorts();
+		}
+	}
+	#endif
+
+
+
+	// Fields
+
+	public GameObject instance;
+	public string behaviorName;
+
+
+
+	// Methods
+
+	public override void CopyFrom(EventBase eventBase) {
+		base.CopyFrom(eventBase);
+		if (eventBase is GetBehaviorNameEvent getBehaviorNameEvent) {
+			instance     = getBehaviorNameEvent.instance;
+			behaviorName = getBehaviorNameEvent.behaviorName;
+		}
+	}
+
+	public override void GetNexts(List<EventBase> list) {
+		int index = 1;
+		if (instance != null && instance.TryGetComponent(out Actor actor)) {
+			if (actor.BehaviorName == behaviorName) index = 0;
+		}
+		foreach (var next in Nexts) if (next.oPortType == PortType.Default) {
+			if (next.oPort == index) list.Add(next.eventBase);
+		}
+	}
+}
+
+
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Actor | Open Shop
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[NodeMenu("Actor/Open Shop")]
+public class OpenShopEvent : EventBase {
+
+	// Node
+
+	#if UNITY_EDITOR
+	public class OpenShopEventNode : EventNodeBase {
+		OpenShopEvent I => target as OpenShopEvent;
+
+		public OpenShopEventNode() : base() {
+			mainContainer.style.minWidth = mainContainer.style.maxWidth = Node1U;
+		}
+
+		public override void ConstructData() {
+			var instance = ObjectField(I.instance, value => I.instance = value);
+			mainContainer.Add(instance);
+		}
+	}
+	#endif
+
+
+
+	// Fields
+
+	public GameObject instance;
+
+
+
+	// Methods
+
+	public override void End() {
+		if (instance && instance.TryGetComponent(out ShopOwner shopOwner)) {
+			shopOwner.OpenShop();
+		}
+	}
+
+	public override void CopyFrom(EventBase eventBase) {
+		base.CopyFrom(eventBase);
+		if (eventBase is OpenShopEvent openShopEvent) {
+			instance = openShopEvent.instance;
+		}
+	}
+}
+
+
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Actor | Set State
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[NodeMenu("Actor/Set State")]
+public class SetStateEvent : EventBase {
+
+	// Node
+
+	#if UNITY_EDITOR
+	public class SetStateEventNode : EventNodeBase {
+		SetStateEvent I => target as SetStateEvent;
+
+		public SetStateEventNode() : base() {
+			mainContainer.style.minWidth = mainContainer.style.maxWidth = Node1U;
+		}
+
+		public override void ConstructData() {
+			var instance = ObjectField(I.instance, value => I.instance = value);
+			var state  = EnumField(I.state, value => I.state = value);
+			mainContainer.Add(instance);
+			mainContainer.Add(state);
+		}
+	}
+	#endif
+
+
+
+	// Fields
+
+	public GameObject instance;
+	public State state;
+
+
+
+	// Methods
+
+	public override void End() {
+		if (instance && instance.TryGetComponent(out Actor actor)) actor.State = state;
+	}
+
+	public override void CopyFrom(EventBase eventBase) {
+		base.CopyFrom(eventBase);
+		if (eventBase is SetStateEvent setStateEvent) {
+			instance = setStateEvent.instance;
+			state  = setStateEvent.state;
+		}
+	}
+}

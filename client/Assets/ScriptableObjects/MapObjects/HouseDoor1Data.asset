@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e735f746ce4f9549b0127fbaee12d31, type: 3}
+  m_Name: HouseDoor1Data
+  m_EditorClassIdentifier: 
+  ObjectId: HouseDoor1
+  ObjectName: "\uC9D1\uBB38"
+  Sprites:
+  - {fileID: -3594645993777100544, guid: 262830145bb9bb64a92ee37bc4f38c7b, type: 3}
+  - {fileID: -8162520631902854680, guid: 262830145bb9bb64a92ee37bc4f38c7b, type: 3}
+  - {fileID: -7625456375540925226, guid: 262830145bb9bb64a92ee37bc4f38c7b, type: 3}
+  - {fileID: -8215000448237602131, guid: 262830145bb9bb64a92ee37bc4f38c7b, type: 3}
+  LinkedItem: {fileID: 0}
+  UseSpriteCollider: 1
+  AdditionalComponents: []
+  IsRotatable: 0
+  UseFlipX: 0
+  IsEditable: 1
+  Size: 1

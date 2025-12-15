@@ -19,12 +19,15 @@ public class InventoryManager : MonoSingleton<InventoryManager> {
     private bool isDragging = false;
     public bool IsDragging => isDragging;
     public event Action OnInventoryChanged;
+    public event Action<string> OnItemChanged;
 
     protected override void Awake() {
         base.Awake();
         foreach (ItemType type in Enum.GetValues(typeof(ItemType))) {
             inventories[type] = new Inventory();
         }
+        // 아이템 변경 시 게임 전역으로 바로 브로드캐스트
+        OnItemChanged += (id) => GameplayEvents.RaiseItemChanged(id);
     }
 
     public ItemBase GetItemAt(int index, ItemType itemType) {
@@ -36,15 +39,41 @@ public class InventoryManager : MonoSingleton<InventoryManager> {
 
     public bool AddItem(ItemBase item) {
         bool result = inventories[item.ItemData.ItemType].AddItem(item);
-        if (result) { OnInventoryChanged?.Invoke(); }
+        if (result) { 
+            item.OnCountChanged += HandleItemCountChanged;
+            OnItemChanged?.Invoke(item.ItemData.ItemId);
+            OnInventoryChanged?.Invoke();
+        }
         return result;
+    }
+
+    public bool AddItem(ItemData itemData) {
+        return InventoryManager.Instance.AddItem(ItemDatabase.Instance.CreateItem(itemData));
+    }
+
+    public bool AddItem(String itemId) {
+        return InventoryManager.Instance.AddItem(ItemDatabase.Instance.CreateItem(itemId));
     }
 
     public bool RemoveItem(ItemBase item) {
         bool result = inventories[item.ItemData.ItemType].RemoveItem(item);
-        if (result) { OnInventoryChanged?.Invoke(); }
+        if (result) {
+            item.OnCountChanged -= HandleItemCountChanged;
+            OnItemChanged?.Invoke(item.ItemData.ItemId);
+            OnInventoryChanged?.Invoke();
+        }
         return result;
     }
+
+    private void HandleItemCountChanged(ItemBase item) {
+        if (item.Count > 0) {
+            OnInventoryChanged?.Invoke();
+            OnItemChanged?.Invoke(item.ItemData.ItemId);
+        } else {
+            RemoveItem(item);
+        }
+    }
+
     public void SelectSlot(int index) {
         currentSlotIndex = index;
         OnInventoryChanged?.Invoke();
@@ -62,6 +91,7 @@ public class InventoryManager : MonoSingleton<InventoryManager> {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start() {
         // TODO 테스트 코드
+        /*
         InventoryManager.Instance.AddItem(new ToolItem(ItemDatabase.Instance.GetItemData("CarrotSeed")));
         InventoryManager.Instance.AddItem(new ToolItem(ItemDatabase.Instance.GetItemData("CarrotSeed")));
         InventoryManager.Instance.AddItem(new ToolItem(ItemDatabase.Instance.GetItemData("CarrotSeed")));
@@ -71,14 +101,27 @@ public class InventoryManager : MonoSingleton<InventoryManager> {
         InventoryManager.Instance.AddItem(new ToolItem(ItemDatabase.Instance.GetItemData("WaterCan")));
         InventoryManager.Instance.AddItem(new ToolItem(ItemDatabase.Instance.GetItemData("WaterCan")));
         InventoryManager.Instance.AddItem(new MapObjectItem(ItemDatabase.Instance.GetItemData("VendingMachineRedItem"), 5));
-        InventoryManager.Instance.AddItem(new MapObjectItem(ItemDatabase.Instance.GetItemData("VendingMachineRedItem"), 5));
-        InventoryManager.Instance.AddItem(new MapObjectItem(ItemDatabase.Instance.GetItemData("VendingMachineRedItem"), 5));
-        InventoryManager.Instance.AddItem(new MapObjectItem(ItemDatabase.Instance.GetItemData("WoodenRoundTableItem"), 2));
+        InventoryManager.Instance.AddItem(new MapObjectItem(ItemDatabase.Instance.GetItemData("SimpleBedItem"), 5));
+        InventoryManager.Instance.AddItem(new MapObjectItem(ItemDatabase.Instance.GetItemData("GlassSquareTableItem"), 5));
+        InventoryManager.Instance.AddItem(new MapObjectItem(ItemDatabase.Instance.GetItemData("WoodenSquareTableItem"), 2));
         InventoryManager.Instance.AddItem(new MapObjectItem(ItemDatabase.Instance.GetItemData("WoodenRoundTableItem"), 2));
         InventoryManager.Instance.AddItem(new MapObjectItem(ItemDatabase.Instance.GetItemData("VendingMachineRedItem"), 5));
         InventoryManager.Instance.AddItem(new MapObjectItem(ItemDatabase.Instance.GetItemData("WoodenRoundTableItem"), 2));
         InventoryManager.Instance.AddItem(new MapObjectItem(ItemDatabase.Instance.GetItemData("VendingMachineRedItem"), 5));
         InventoryManager.Instance.AddItem(new MapObjectItem(ItemDatabase.Instance.GetItemData("FountainItem"), 2));
+        */
+		/*
+        InventoryManager.Instance.AddItem(ItemDatabase.Instance.CreateItem("CarrotSeed"));
+        InventoryManager.Instance.AddItem(ItemDatabase.Instance.CreateItem("WaterCan"));
+        InventoryManager.Instance.AddItem(ItemDatabase.Instance.CreateItem("VendingMachineRedItem"));
+        InventoryManager.Instance.AddItem(ItemDatabase.Instance.CreateItem("FountainItem"));
+        InventoryManager.Instance.AddItem(ItemDatabase.Instance.CreateItem("SimpleBedItem", 5));
+		*/
+    }
+
+    private void OnEnable() {
+        isDragging = false;
+        dragImage.gameObject.SetActive(false);
     }
 
     // Update is called once per frame
@@ -88,17 +131,27 @@ public class InventoryManager : MonoSingleton<InventoryManager> {
     }
 
     private void ItemDrag() {
-        if (dragImage.gameObject.activeSelf) {
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                canvas.transform as RectTransform,
-                Mouse.current.position.ReadValue(),
-                canvas.worldCamera,
-                out Vector2 localPos);
-            dragImage.rectTransform.localPosition = localPos;
+        if (!isDragging || dragImage == null || !dragImage.gameObject.activeSelf) {
+            return;
+        }
+        Vector2 screenPos = InputManager.PointPositionSafe;
+        if (screenPos == Vector2.zero) {
+            return;
+        }
+        //dragImage.rectTransform.anchoredPosition = screenPos;
+        
+        var rectCanvas = canvas.transform as RectTransform;
+        Camera cam = null;
+        if (canvas.renderMode == RenderMode.ScreenSpaceCamera || canvas.renderMode == RenderMode.WorldSpace)
+            cam = canvas.worldCamera;
 
-            if (Mouse.current.leftButton.wasReleasedThisFrame) {
-                EndItemDrag();
-            }
+        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                rectCanvas, screenPos, cam, out Vector2 localPos)) {
+            dragImage.rectTransform.anchoredPosition = localPos;
+        }
+        
+        if (InputManager.GetKeyUp(KeyAction.Click)) {
+            EndItemDrag();
         }
     }
 

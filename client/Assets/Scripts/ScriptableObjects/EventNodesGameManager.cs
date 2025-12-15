@@ -165,7 +165,7 @@ public sealed class PlayEventEvent : EventBase {
 		public override void ConstructPort() {
 			CreatePort(Direction.Input);
 			CreatePort(Direction.Output);
-			CreatePort(Direction.Output, PortType.DataID);
+			CreatePort(Direction.Output, PortType.MultimodalData);
 			RefreshExpandedState();
 			RefreshPorts();
 		}
@@ -241,10 +241,10 @@ public sealed class IsEventPlayingEvent : EventBase {
 
 		public override void ConstructPort() {
 			CreatePort(Direction.Input);
-			CreatePort(Direction.Input, PortType.DataID);
+			CreatePort(Direction.Input, PortType.MultimodalData);
 			CreatePort(Direction.Output).portName = "True";
 			CreatePort(Direction.Output).portName = "False";
-			CreatePort(Direction.Output, PortType.DataID);
+			CreatePort(Direction.Output, PortType.MultimodalData);
 			RefreshExpandedState();
 			RefreshPorts();
 		}
@@ -308,7 +308,7 @@ public sealed class StopEventEvent : EventBase {
 
 		public override void ConstructPort() {
 			CreatePort(Direction.Input);
-			CreatePort(Direction.Input, PortType.DataID);
+			CreatePort(Direction.Input, PortType.MultimodalData);
 			CreatePort(Direction.Output);
 			RefreshExpandedState();
 			RefreshPorts();
@@ -366,7 +366,7 @@ public sealed class QuitGameEvent : EventBase {
 }
 
 
-/*
+
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Game Manager | Get Int Value
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -425,7 +425,7 @@ public class GetIntValueEvent : EventBase {
 		}
 	}
 
-	public override void GetNext(List<EventBase> list) {
+	public override void GetNexts(List<EventBase> list) {
 		int index = compare switch {
 			Compare.Equal              => GameManager.IntValue[key] == value,
 			Compare.NotEqual           => GameManager.IntValue[key] != value,
@@ -435,7 +435,7 @@ public class GetIntValueEvent : EventBase {
 			Compare.GreaterThanOrEqual => GameManager.IntValue[key] >= value,
 			_ => default,
 		} ? 0 : 1;
-		foreach (var next in nexts) if (next.oPortType == PortType.Default) {
+		foreach (var next in Nexts) if (next.oPortType == PortType.Default) {
 			if (next.oPort == index) list.Add(next.eventBase);
 		}
 	}
@@ -607,7 +607,7 @@ public class GetFloatValueEvent : EventBase {
 		}
 	}
 
-	public override void GetNext(List<EventBase> list) {
+	public override void GetNexts(List<EventBase> list) {
 		int index = compare switch {
 			Compare.Equal              => GameManager.FloatValue[key] == value,
 			Compare.NotEqual           => GameManager.FloatValue[key] != value,
@@ -617,7 +617,7 @@ public class GetFloatValueEvent : EventBase {
 			Compare.GreaterThanOrEqual => GameManager.FloatValue[key] >= value,
 			_ => default,
 		} ? 0 : 1;
-		foreach (var next in nexts) if (next.oPortType == PortType.Default) {
+		foreach (var next in Nexts) if (next.oPortType == PortType.Default) {
 			if (next.oPort == index) list.Add(next.eventBase);
 		}
 	}
@@ -790,13 +790,13 @@ public class GetStringValueEvent : EventBase {
 		}
 	}
 
-	public override void GetNext(List<EventBase> list) {
+	public override void GetNexts(List<EventBase> list) {
 		int index = compare switch {
 			Compare.Equal    => GameManager.StringValue[key] == value,
 			Compare.NotEqual => GameManager.StringValue[key] != value,
 			_ => default,
 		} ? 0 : 1;
-		foreach (var next in nexts) if (next.oPortType == PortType.Default) {
+		foreach (var next in Nexts) if (next.oPortType == PortType.Default) {
 			if (next.oPort == index) list.Add(next.eventBase);
 		}
 	}
@@ -909,52 +909,3 @@ public class AddStringValueEvent : EventBase {
 		GameManager.StringValue[key] += value;
 	}
 }
-
-
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Game Manager | Collect Gem
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-[NodeMenu("Game Manager/Collect Gem")]
-public class CollectGemEvent : EventBase {
-
-	// Node
-
-	#if UNITY_EDITOR
-		public class CollectGemEventNode : EventNodeBase {
-			CollectGemEvent I => target as CollectGemEvent;
-
-			public CollectGemEventNode() : base() {
-				mainContainer.style.width = Node1U;
-			}
-
-			public override void ConstructData() {
-				var amount = IntField(I.amount, value => I.amount = value);
-				mainContainer.Add(amount);
-			}
-		}
-	#endif
-
-
-
-	// Fields
-
-	public int amount = 1;
-
-
-
-	// Methods
-
-	public override void End() {
-		GameManager.CollectGem(amount);
-	}
-
-	public override void CopyFrom(EventBase eventBase) {
-		base.CopyFrom(eventBase);
-		if (eventBase is CollectGemEvent collectGemEvent) {
-			amount = collectGemEvent.amount;
-		}
-	}
-}
-*/

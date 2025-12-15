@@ -42,5 +42,7 @@ public class MapObjectSlotUI : MonoBehaviour, ILongPressable {
 
     public void OnLongPressed() {
         BuildingModeManager.Instance.ShowGhost(mapObjData);
+        item.SubtractCount();
+        UpdateUI();
     }
 }

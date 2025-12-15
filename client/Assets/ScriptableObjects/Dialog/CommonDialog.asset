@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b3ccedcc37b830c49b1baf336f916ce7, type: 3}
+  m_Name: CommonDialog
+  m_EditorClassIdentifier: 
+  m_Entry:
+    rid: 3057003649001848901
+  references:
+    version: 2
+    RefIds:
+    - rid: 3057003649001848901
+      type: {class: EntryEvent, ns: , asm: Assembly-CSharp}
+      data:
+        m_Guid: d5ec13d5-8eb3-4494-bfb1-4d3941549dca
+        m_Position: {x: 0, y: 0}
+        m_Prevs: []
+        m_Nexts: []

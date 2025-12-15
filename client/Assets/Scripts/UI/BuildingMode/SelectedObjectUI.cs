@@ -9,6 +9,7 @@ public class SelectedObjectUI : MonoBehaviour
     [SerializeField] private Vector3 offset = new Vector3(0f, 0f, 0f);
     [SerializeField] private Button rotateNextButton;
     [SerializeField] private Button rotatePrevButton;
+    [SerializeField] private Button removeButton;
 
     private Transform targetTransform;
     private MapObject targetObject;
@@ -29,6 +30,7 @@ public class SelectedObjectUI : MonoBehaviour
 
         rotateNextButton.onClick.AddListener(OnClickRotateNext);
         rotatePrevButton.onClick.AddListener(OnClickRotatePrev);
+        removeButton.onClick.AddListener(OnClickRemove);
 
         // 초기 상태 한 번 갱신
         HandleSelectionChanged();
@@ -42,6 +44,7 @@ public class SelectedObjectUI : MonoBehaviour
 
         rotateNextButton.onClick.RemoveListener(OnClickRotateNext);
         rotatePrevButton.onClick.RemoveListener(OnClickRotatePrev);
+        removeButton.onClick.RemoveListener(OnClickRemove);
     }
 
     void Update() {
@@ -69,6 +72,7 @@ public class SelectedObjectUI : MonoBehaviour
             float xOffset = 24f * 0.5f * (targetObject.Data.Size + 1);
             rotateNextButton.transform.localPosition = new Vector3(xOffset, 0f, 0f);
             rotatePrevButton.transform.localPosition = new Vector3(-xOffset, 0f, 0f);
+            removeButton.transform.localPosition = new Vector3(0f, -xOffset + 12f, 0f);
         }
         uiRoot.gameObject.SetActive(targetObject != null);
     }
@@ -84,6 +88,13 @@ public class SelectedObjectUI : MonoBehaviour
         if (targetObject != null) {
             targetObject.RotatePrev();
             targetObject.PlayAppear();
+        }
+    }
+
+    private void OnClickRemove() {
+        if (targetObject != null) {
+            targetObject.Remove();
+            BuildingModeManager.Instance.SelectObject(null);
         }
     }
 

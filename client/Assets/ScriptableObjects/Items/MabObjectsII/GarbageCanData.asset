@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 917388ea3f62235449372833b2042320, type: 3}
+  m_Name: GarbageCanData
+  m_EditorClassIdentifier: 
+  itemId: GarbageCanItem
+  itemName: "\uC4F0\uB808\uAE30\uD1B5"
+  itemDescription: "\uC4F0\uB808\uAE30\uD1B5"
+  itemType: 5
+  isStackable: 1
+  itemIconSprite: {fileID: 21300000, guid: 53c2837abb5d0ab4881a42c916b2176d, type: 3}
+  isTool: 0
+  itemClassName: MapObjectItem
+  toolClassName: 
+  holdingSprite: {fileID: 0}

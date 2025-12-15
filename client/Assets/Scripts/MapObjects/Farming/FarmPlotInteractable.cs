@@ -9,7 +9,7 @@ public class FarmPlotInteractable : MonoBehaviour, IInteractable
     public InteractionType InteractionType => InteractionType.Interact;
     public bool IsInteractable {
         get {
-            if (parentPlot.CurrentPlant == null) { 
+            if (parentPlot.CurrentPlant == null) {
                 return playerToolManager?.EquippedTool is SeedTool;
             }
             return parentPlot.CurrentPlant.IsHarvestable();
@@ -17,14 +17,13 @@ public class FarmPlotInteractable : MonoBehaviour, IInteractable
     }
 
     public void Interact(GameObject interactor) {
+		AudioManager.PlaySoundFX(Audio.Farming, 0.8f);
         Debug.Log("interact!");
         if (parentPlot.CurrentPlant == null) {
             SeedTool seed = (SeedTool)playerToolManager?.EquippedTool;
             parentPlot.PlantSeed(PlantDatabase.Instance.GetPlantData(seed.GetPlantId()));
         }
         else if (parentPlot.CurrentPlant.IsHarvestable()) {
-            // TODO 아이템 획득 로직 추가 필요
-            
             Debug.Log("수확!");
             parentPlot.HarvestPlant();
         }

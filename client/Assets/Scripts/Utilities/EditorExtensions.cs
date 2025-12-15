@@ -471,13 +471,12 @@ public class EditorExtensions : Editor {
 		page = Mathf.Clamp(page, min, max);
 		int a = length * page;
 		int b = collection.Count < length ? collection.Count : length * (page + 1);
-		int m = Mathf.Min(b, collection.Count);
 		var enumerator = collection.GetEnumerator();
 		for (int i = 0; i < a; i++) enumerator.MoveNext();
 		for (int i = a; i < b; i++) {
-			enumerator.MoveNext();
+			bool match = enumerator.MoveNext();
 			BeginVertical(EditorStyles.helpBox);
-			action?.Invoke(i < m, i, enumerator.Current);
+			action?.Invoke(match, i, match ? enumerator.Current : default);
 			EndVertical();
 		}
 		BeginHorizontal();

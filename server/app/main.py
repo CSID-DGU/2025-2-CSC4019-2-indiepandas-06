@@ -7,6 +7,7 @@ from fastapi.responses import Response
 from app.core.config import settings
 from app.core.observability import add_observability
 from app.routers.dialog import router as dialog_router
+from app.routers.websocket import router as ws_router
 
 
 def create_app() -> FastAPI:
@@ -31,6 +32,7 @@ def create_app() -> FastAPI:
 
     # Routers
     app.include_router(dialog_router)
+    app.include_router(ws_router)
 
     # Health
     @app.get("/healthz", tags=["health"])

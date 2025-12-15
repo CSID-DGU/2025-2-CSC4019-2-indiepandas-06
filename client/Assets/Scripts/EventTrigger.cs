@@ -145,14 +145,16 @@ public sealed class EventTrigger : MonoBehaviour, IInteractable {
 
 	public UnityEvent OnInteract => m_OnInteract;
 
+	uint eventID;
+
 
 
 	// Methods
 
 	public void Interact(GameObject interactor) {
-		if (IsInteractable) {
+		if (IsInteractable && eventID == default) {
 			OnInteract.Invoke();
-			GameManager.PlayEvent(Event);
+			eventID = GameManager.PlayEvent(Event);
 			if (UseCountLimit) Count--;
 			if (UseCooldown) Timer = Cooldown;
 		}
@@ -162,7 +164,11 @@ public sealed class EventTrigger : MonoBehaviour, IInteractable {
 
 	// Lifecycle
 
-	void Update() => Timer -= Time.deltaTime;
+	void Update() {
+		if (eventID != default && GameManager.IsEventPlaying(eventID)) return;
+		eventID = default;
+		Timer -= Time.deltaTime;
+	}
 
 	void OnTriggerStay2D(Collider2D other) {
 		if (TriggerType != TriggerType.InRange) return;

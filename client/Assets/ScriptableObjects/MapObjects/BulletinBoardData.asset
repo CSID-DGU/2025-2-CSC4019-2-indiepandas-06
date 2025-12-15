@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e735f746ce4f9549b0127fbaee12d31, type: 3}
+  m_Name: BulletinBoardData
+  m_EditorClassIdentifier: 
+  ObjectId: BulletinBoard
+  ObjectName: "\uAC8C\uC2DC\uD310"
+  Sprites:
+  - {fileID: 2510310916898294104, guid: bfbdc9a1a5a99c945b02cb656ef1e738, type: 3}
+  - {fileID: -4046930951190585114, guid: bfbdc9a1a5a99c945b02cb656ef1e738, type: 3}
+  - {fileID: 4981229936844991768, guid: bfbdc9a1a5a99c945b02cb656ef1e738, type: 3}
+  - {fileID: -4305281756701725763, guid: bfbdc9a1a5a99c945b02cb656ef1e738, type: 3}
+  LinkedItem: {fileID: 0}
+  UseSpriteCollider: 1
+  AdditionalComponents: []
+  IsRotatable: 0
+  UseFlipX: 0
+  IsEditable: 1
+  Size: 1

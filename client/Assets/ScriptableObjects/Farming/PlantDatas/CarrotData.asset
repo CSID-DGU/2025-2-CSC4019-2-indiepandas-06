@@ -14,9 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   plantId: Carrot
   plantName: "\uB2F9\uADFC"
-  growthTime: 120
+  growthTime: 10
   growthSprites:
   - {fileID: 21300000, guid: d073d79fbcd32b24f896cfed8066d6af, type: 3}
   - {fileID: 21300000, guid: 7633ee04b02b7424b94eef903c00b8e3, type: 3}
   - {fileID: 21300000, guid: ef48d784c8de43741b381eb9a02273ab, type: 3}
   - {fileID: 21300000, guid: 2e6258a981f0cbd4994dae2824ad1901, type: 3}
+  itemData: {fileID: 11400000, guid: 79838e4d85d16254c80608f26121d243, type: 2}

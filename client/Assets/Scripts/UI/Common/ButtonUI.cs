@@ -28,24 +28,40 @@ public class CustomButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     }
 
     public void OnPointerEnter(PointerEventData eventData) {
-        backImage.sprite = hoverSprite;
-        labelText.rectTransform.anchoredPosition = originalPos + textHoverAmount;
+        if (backImage != null) {
+            backImage.sprite = hoverSprite;
+        }
+        if (labelText != null) {
+            labelText.rectTransform.anchoredPosition = originalPos + textHoverAmount;
+        }
         isHovering = true;
     }
 
     public void OnPointerExit(PointerEventData eventData) {
-        backImage.sprite = normalSprite;
-        labelText.rectTransform.anchoredPosition = originalPos;
+        if (backImage != null) {
+            backImage.sprite = normalSprite;
+        }
+        if (labelText != null) {
+            labelText.rectTransform.anchoredPosition = originalPos;
+        }
         isHovering = false;
     }
 
     public void OnPointerDown(PointerEventData eventData) {
-        backImage.sprite = pressedSprite;
-        labelText.rectTransform.anchoredPosition = originalPos + textPressedAmount;
+        if (backImage != null) {
+            backImage.sprite = pressedSprite;
+        }
+        if (labelText != null) {
+            labelText.rectTransform.anchoredPosition = originalPos + textPressedAmount;
+        }
     }
 
     public void OnPointerUp(PointerEventData eventData) {
-        backImage.sprite = hoverSprite;
-        labelText.rectTransform.anchoredPosition = originalPos + (isHovering ? textHoverAmount : Vector2.zero);
+        if (backImage != null) {
+            backImage.sprite = hoverSprite;
+        }
+        if (labelText != null) {
+            labelText.rectTransform.anchoredPosition = originalPos + (isHovering ? textHoverAmount : Vector2.zero);
+        }
     }
 }

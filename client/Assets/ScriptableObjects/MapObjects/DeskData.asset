@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e735f746ce4f9549b0127fbaee12d31, type: 3}
+  m_Name: DeskData
+  m_EditorClassIdentifier: 
+  ObjectId: Desk
+  ObjectName: "\uCC45\uC0C1"
+  Sprites:
+  - {fileID: 7872722273471896646, guid: a441f759ea8c8e84e9fc7b6aa7c45f10, type: 3}
+  - {fileID: 8840223864677710730, guid: a441f759ea8c8e84e9fc7b6aa7c45f10, type: 3}
+  - {fileID: 6988153323376992787, guid: a441f759ea8c8e84e9fc7b6aa7c45f10, type: 3}
+  - {fileID: 7964780622526735561, guid: a441f759ea8c8e84e9fc7b6aa7c45f10, type: 3}
+  LinkedItem: {fileID: 11400000, guid: cc18b6c501df3b34d992e44bdcef7e61, type: 2}
+  UseSpriteCollider: 1
+  AdditionalComponents: []
+  IsRotatable: 1
+  UseFlipX: 0
+  IsEditable: 1
+  Size: 3

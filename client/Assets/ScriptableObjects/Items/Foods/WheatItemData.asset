@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 917388ea3f62235449372833b2042320, type: 3}
+  m_Name: WheatItemData
+  m_EditorClassIdentifier: 
+  itemId: WheatItem
+  itemName: "\uBC00"
+  itemDescription: "\uD587\uBE5B\uC744 \uD55C\uAC00\uB4DD \uBA38\uAE08\uC740 \uBC00."
+  itemType: 3
+  isStackable: 1
+  itemIconSprite: {fileID: 21300000, guid: c5edaf2f926968945ac4b5e2bc9c0a06, type: 3}
+  isTool: 0
+  itemClassName: BasicItem
+  toolClassName: 
+  holdingSprite: {fileID: 0}

@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e735f746ce4f9549b0127fbaee12d31, type: 3}
+  m_Name: ClosetData
+  m_EditorClassIdentifier: 
+  ObjectId: Closet
+  ObjectName: "\uC637\uC7A5"
+  Sprites:
+  - {fileID: 8838388076870224577, guid: 79a26db66bc82be4f9f74192b4819313, type: 3}
+  - {fileID: -5190086673428297956, guid: 79a26db66bc82be4f9f74192b4819313, type: 3}
+  - {fileID: -6115162491317724075, guid: 79a26db66bc82be4f9f74192b4819313, type: 3}
+  - {fileID: -5600467599121576513, guid: 79a26db66bc82be4f9f74192b4819313, type: 3}
+  LinkedItem: {fileID: 11400000, guid: f8248b1c6b34e014698daa9bb94087e5, type: 2}
+  UseSpriteCollider: 1
+  AdditionalComponents: []
+  IsRotatable: 1
+  UseFlipX: 0
+  IsEditable: 1
+  Size: 2

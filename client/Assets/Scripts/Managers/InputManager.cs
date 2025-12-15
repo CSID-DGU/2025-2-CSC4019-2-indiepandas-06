@@ -63,6 +63,8 @@ public class InputManager : MonoSingleton<InputManager> {
 				message += $"Please assign a Input Action Asset to here.";
 				HelpBox(message, MessageType.Info);
 			}
+			var currentActionMap = PlayerInput.currentActionMap?.name ?? "None";
+			LabelField("Current Action Map", currentActionMap);
 			Space();
 
 			LabelField("Web Cam", EditorStyles.boldLabel);
@@ -168,6 +170,17 @@ public class InputManager : MonoSingleton<InputManager> {
 		set => Instance.m_RawImage = value;
 	}
 
+	public static Vector2 PointPositionSafe {
+        get {
+			var p = Instance.m_PointPosition;
+            if (p != Vector2.zero) return p;
+            if (Pointer.current != null) return Pointer.current.position.ReadValue();
+            if (Mouse.current != null) return Mouse.current.position.ReadValue();
+            if (Touchscreen.current!=null) return Touchscreen.current.primaryTouch.position.ReadValue();
+            return p;
+        }
+    }
+
 
 
 	// Key State Methods
@@ -176,13 +189,14 @@ public class InputManager : MonoSingleton<InputManager> {
 		if (InputActionAsset == null) return;
 		foreach (var inputActionMap in InputActionAsset.actionMaps) {
 			
-			inputActionMap.Enable();
+			// inputActionMap.Enable();
 
 			if (!Enum.TryParse(inputActionMap.name, out ActionMap actionMap)) continue;
 			foreach (var inputAction in inputActionMap.actions) {
 				if (!Enum.TryParse(inputAction.name, out KeyAction keyAction)) continue;
 
 				int index = (int)keyAction;
+
 				inputAction.started += action => KeyNext |= 1u << index;
 				inputAction.performed += keyAction switch {
 					KeyAction.Move        => action => MoveDirection = action.ReadValue<Vector2>(),
@@ -194,6 +208,7 @@ public class InputManager : MonoSingleton<InputManager> {
 						false => KeyNext &= ~(1u << index),
 					},
 				};
+
 				inputAction.canceled += keyAction switch {
 					KeyAction.Move        => action => MoveDirection = Vector2.zero,
 					KeyAction.Point       => action => PointPosition = Vector2.zero,
@@ -214,12 +229,53 @@ public class InputManager : MonoSingleton<InputManager> {
 	}
 
 	public static void SwitchActionMap(ActionMap actionMap) {
+		Debug.Log($"[Input] Before) SwitchActionMap -> {actionMap}");
+		Debug.Log($"[Input] currentActionMap={InputManager.PlayerInput.currentActionMap?.name}");
+
 		if (InputActionAsset == null) return;
 		PlayerInput.currentActionMap = InputActionAsset.FindActionMap(actionMap.ToString());
 		MoveDirection = PointPosition = ScrollWheel = Navigate = default;
 		KeyNext = KeyPrev = default;
 		MoveDirection = PointPosition = ScrollWheel = Navigate = default;
+		
+		//foreach (var inputActionMap in InputActionAsset.actionMaps) {
+		//	inputActionMap.Enable();
+		//}
+		
+		Debug.Log($"[Input] After) currentActionMap={InputManager.PlayerInput.currentActionMap?.name}");
 	}
+
+	public static void ApplyInputPolicy(InputPolicy policy) {
+        switch (policy) {
+            case InputPolicy.PlayerOnly: EnableOnly(ActionMap.Player); break;
+            case InputPolicy.UIOnly:     EnableOnly(ActionMap.UI);     break;
+            case InputPolicy.Both:       EnableBoth(ActionMap.Player, ActionMap.UI); break;
+        }
+        ResetInputState();
+    }
+
+    static void EnableOnly(ActionMap map) {
+        var asset = PlayerInput.actions;
+        foreach (var m in asset.actionMaps) {
+            if (System.Enum.TryParse(m.name, out ActionMap parsed) && parsed == map) m.Enable();
+            else m.Disable();
+        }
+        PlayerInput.SwitchCurrentActionMap(map.ToString());
+    }
+
+    static void EnableBoth(ActionMap a, ActionMap b) {
+        var asset = PlayerInput.actions;
+        foreach (var m in asset.actionMaps) {
+            if (System.Enum.TryParse(m.name, out ActionMap parsed) && (parsed == a || parsed == b)) m.Enable();
+            else m.Disable();
+        }
+        PlayerInput.SwitchCurrentActionMap(ActionMap.UI.ToString());
+    }
+
+    static void ResetInputState() {
+        MoveDirection = PointPosition = ScrollWheel = Navigate = default;
+		KeyNext = KeyPrev = default;
+    }
 
 	static bool GetKeyNext(KeyAction key) => (KeyNext & (1u << (int)key)) != 0u;
 	static bool GetKeyPrev(KeyAction key) => (KeyPrev & (1u << (int)key)) != 0u;

@@ -5,6 +5,7 @@ using Unity.Services.Core;
 using Unity.Services.Authentication;
 using Unity.Services.Authentication.PlayerAccounts;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
 public enum SignInFailure {
@@ -21,6 +22,8 @@ public class GoogleLogin : MonoBehaviour, IPointerClickHandler {
     public event Action OnLoginSucceeded;
     public event Action<SignInFailure, string> OnLoginFailed;
 
+	[SerializeField] UnityEvent m_OnLoginSucceeded = new();
+
     private int timeoutSeconds = 90;
     private bool isBusy;
 
@@ -29,6 +32,7 @@ public class GoogleLogin : MonoBehaviour, IPointerClickHandler {
 
         // UPA 브라우저 로그인 성공 시 콜백 등록
         PlayerAccountService.Instance.SignedIn += OnUpaSignedIn;
+		PlayerAccountService.Instance.SignedIn += () => m_OnLoginSucceeded.Invoke();
 
         OnLoginFailed += ShowErrorLog;
     }

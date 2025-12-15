@@ -14,7 +14,7 @@ using UnityEditor;
 [Serializable]
 public struct ItemEntry {
 	public ItemData item;
-	public float price;
+	public int price;
 	public int quantity;
 }
 
@@ -24,7 +24,7 @@ public struct FeatureEntry {
 	public string name;
 	public string text;
 	public UnityEvent action;
-	public float price;
+	public int price;
 	public int quantity;
 }
 
@@ -51,10 +51,9 @@ public sealed class ShopScreen : ScreenBase {
 			Space();
 
 			LabelField("Shop", EditorStyles.boldLabel);
-			I.BuyScrollview  = ObjectField("Buy Scrollview",  I.BuyScrollview);
-			I.SellScrollview = ObjectField("Sell Scrollview", I.SellScrollview);
-			I.BuyButton      = ObjectField("Buy Button",      I.BuyButton);
-			I.SellButton     = ObjectField("Sell Button",     I.SellButton);
+			I.Scrollview  = ObjectField("Scrollview",  I.Scrollview);
+			I.BuyButton   = ObjectField("Buy Button",  I.BuyButton);
+			I.SellButton  = ObjectField("Sell Button", I.SellButton);
 			Space();
 			I.DetailPanelIconImage = ObjectField("Detail Panel Icon Image", I.DetailPanelIconImage);
 			I.DetailPanelNameText  = ObjectField("Detail Panel Name Text",  I.DetailPanelNameText);
@@ -84,7 +83,7 @@ public sealed class ShopScreen : ScreenBase {
 	List<ItemEntry> m_ItemList;
 	List<FeatureEntry> m_FeatureList;
 
-	[SerializeField] GameObject m_BuyScrollview;
+	[SerializeField] GameObject m_Scrollview;
 	[SerializeField] GameObject m_SellScrollview;
 	[SerializeField] GameObject m_BuyButton;
 	[SerializeField] GameObject m_SellButton;
@@ -111,6 +110,10 @@ public sealed class ShopScreen : ScreenBase {
 
 
 
+	/*
+	Shop Screen 호출 전 ItemList 및 FeatureList 등록 필요
+	*/
+
 	public List<ItemEntry> ItemList {
 		get => m_ItemList;
 		set => m_ItemList = value;
@@ -120,13 +123,9 @@ public sealed class ShopScreen : ScreenBase {
 		set => m_FeatureList = value;
 	}
 
-	GameObject BuyScrollview {
-		get => m_BuyScrollview;
-		set => m_BuyScrollview = value;
-	}
-	GameObject SellScrollview {
-		get => m_SellScrollview;
-		set => m_SellScrollview = value;
+	GameObject Scrollview {
+		get => m_Scrollview;
+		set => m_Scrollview = value;
 	}
 	GameObject BuyButton {
 		get => m_BuyButton;
@@ -137,20 +136,20 @@ public sealed class ShopScreen : ScreenBase {
 		set => m_SellButton = value;
 	}
 	public bool IsBuying {
-		get => BuyScrollview.activeSelf;
+		get => BuyButton.activeSelf;
 		set {
-			BuyScrollview.SetActive(value);
-			SellScrollview.SetActive(!value);
-			BuyButton.SetActive(value);
-			SellButton.SetActive(!value);
-			Input = default;
 			if (value) {
-				RefreshListPanel();
-				if (0 < ItemButtonList.Count) ItemButtonList[0].onClick.Invoke();
-				else RefreshDetailPanel(null, null, null, 0, 0);
+				BuyButton.SetActive(true);
+				SellButton.SetActive(false);
+				RefreshListPanelForBuy();
 			} else {
-				RefreshDetailPanel(null, null, null, 0, 0);
+				BuyButton.SetActive(false);
+				SellButton.SetActive(true);
+				RefreshListPanelForSell();
 			}
+			if (0 < ItemButtonList.Count) ItemButtonList[0].onClick.Invoke();
+			else RefreshDetailPanel(null, null, null, 0, 0);
+			Input = default;
 		}
 	}
 
@@ -208,53 +207,40 @@ public sealed class ShopScreen : ScreenBase {
 		ItemButtonPool.Push(instance);
 	}
 
-
-
-	void RefreshDetailPanel(string name, string text, Sprite icon, float price, int quantity) {
-		DetailPanelIconImage.sprite = icon;
-		DetailPanelNameText.text = name;
-		DetailPanelTextText.text = text;
-		DetailPanelDataText.text = (0 < quantity) ? $"{quantity}개 남음" : "품절";
+	bool TryGetIconImage(Button button, out Image image) {
+		return button.transform.GetChild(0).TryGetComponent(out image);
+	}
+	bool TryGetNameText(Button button, out TextMeshProUGUI text) {
+		return button.transform.GetChild(1).TryGetComponent(out text);
+	}
+	bool TryGetDataText(Button button, out TextMeshProUGUI text) {
+		return button.transform.GetChild(2).TryGetComponent(out text);
+	}
+	bool TryGetCurrencyImage(Button button, out Image image) {
+		return button.transform.GetChild(3).TryGetComponent(out image);
+	}
+	void RefreshLayout(TextMeshProUGUI text, Image icon) {
+		var textTransform = (RectTransform)text.transform;
+		var iconTransform = (RectTransform)icon.transform;
+		float textWidth = text.preferredWidth;
+		float iconWidth = iconTransform.rect.width;
+		float textPivot = textTransform.anchoredPosition.x - (textWidth * 1.0f);
+		float iconPositionX = textPivot - TextIconMargin - (iconWidth * 0.0f);
+		float iconPositionY = iconTransform.anchoredPosition.y;
+		iconTransform.anchoredPosition = new(iconPositionX, iconPositionY);
 	}
 
-	void RefreshListPanel() {
+
+
+	/*
+	구매 목록 표시 함수
+	*/
+
+	void RefreshListPanelForBuy() {
 		int count = 0;
 		Button GetInstance() {
 			if (ItemButtonList.Count == count) ItemButtonList.Add(GetOrCreateInstance());
 			return ItemButtonList[count++];
-		}
-		const int Up = 0, Down = 1, Left = 2, Right = 3;
-		void SetNavigation(Selectable selectable, Selectable target, int direction) {
-			var navigation = selectable.navigation;
-			switch (direction) {
-				case Up:    navigation.selectOnUp    = target; break;
-				case Down:  navigation.selectOnDown  = target; break;
-				case Left:  navigation.selectOnLeft  = target; break;
-				case Right: navigation.selectOnRight = target; break;
-			}
-			selectable.navigation = navigation;
-		}
-		bool TryGetIconImage(Button button, out Image image) {
-			return button.transform.GetChild(0).TryGetComponent(out image);
-		}
-		bool TryGetNameText(Button button, out TextMeshProUGUI text) {
-			return button.transform.GetChild(1).TryGetComponent(out text);
-		}
-		bool TryGetDataText(Button button, out TextMeshProUGUI text) {
-			return button.transform.GetChild(2).TryGetComponent(out text);
-		}
-		bool TryGetCurrencyImage(Button button, out Image image) {
-			return button.transform.GetChild(3).TryGetComponent(out image);
-		}
-		void RefreshLayout(TextMeshProUGUI text, Image icon) {
-			var textTransform = (RectTransform)text.transform;
-			var iconTransform = (RectTransform)icon.transform;
-			float textWidth = text.preferredWidth;
-			float iconWidth = iconTransform.rect.width;
-			float textPivot = textTransform.anchoredPosition.x - (textWidth * 1.0f);
-			float iconPositionX = textPivot - TextIconMargin - (iconWidth * 0.0f);
-			float iconPositionY = iconTransform.anchoredPosition.y;
-			iconTransform.anchoredPosition = new(iconPositionX, iconPositionY);
 		}
 
 		if (ItemList != null) for (int i = 0; i < ItemList.Count; i++) {
@@ -264,14 +250,9 @@ public sealed class ShopScreen : ScreenBase {
 			var position = transform.anchoredPosition;
 			position.y = -transform.rect.height * index;
 			transform.anchoredPosition = position;
-			instance.navigation = new Navigation { mode = Navigation.Mode.Explicit };
-			if (0 < index) {
-				SetNavigation(instance, ItemButtonList[index - 1], Up);
-				SetNavigation(ItemButtonList[index - 1], instance, Down);
-			}
 			var entry = ItemList[index];
 			var name = entry.item.ItemName;
-			var text = "아이템 설명";
+			var text = entry.item.ItemDescription;
 			var icon = entry.item.ItemIconSprite;
 			if (TryGetIconImage(instance, out var iconImage)) iconImage.sprite = icon;
 			if (TryGetNameText(instance, out var nameText)) nameText.text = name;
@@ -281,19 +262,25 @@ public sealed class ShopScreen : ScreenBase {
 					RefreshLayout(dataText, currencyImage);
 				}
 			}
-
 			instance.onClick.RemoveAllListeners();
 			instance.onClick.AddListener(() => {
 				bool match = true;
 				match = match && Input.button == instance;
 				match = match && Time.time - Input.time < DoubleClickThreshold;
+				match = match && entry.price < GameManager.IntValue["Gem"];
 				match = match && 0 < entry.quantity;
 				if (match) {
+					GameManager.IntValue["Gem"] -= entry.price;
 					entry.quantity--;
 					ItemList[index] = entry;
-					OnItemPurchased(entry.item);
+					AudioManager.PlaySoundFX(Audio.Shop, 0.3f);
+					/*
+					구매 성공 처리
+					- ItemData -> ItemBase 변환 추가 필요
+					*/
+					OnBuyCompleted(entry.item);
 					RefreshDetailPanel(name, text, icon, entry.price, entry.quantity);
-					RefreshListPanel();
+					RefreshListPanelForBuy();
 					Input = default;
 				} else {
 					RefreshDetailPanel(name, text, icon, entry.price, entry.quantity);
@@ -309,11 +296,6 @@ public sealed class ShopScreen : ScreenBase {
 			var position = transform.anchoredPosition;
 			position.y = -transform.rect.height * (index + (ItemList?.Count ?? 0));
 			transform.anchoredPosition = position;
-			instance.navigation = new Navigation { mode = Navigation.Mode.Explicit };
-			if (0 < index) {
-				SetNavigation(instance, ItemButtonList[index - 1], Up);
-				SetNavigation(ItemButtonList[index - 1], instance, Down);
-			}
 			var entry = FeatureList[index];
 			var name = entry.name;
 			var text = entry.text;
@@ -326,19 +308,21 @@ public sealed class ShopScreen : ScreenBase {
 					RefreshLayout(dataText, currencyImage);
 				}
 			}
-
 			instance.onClick.RemoveAllListeners();
 			instance.onClick.AddListener(() => {
 				bool match = true;
 				match = match && Input.button == instance;
 				match = match && Time.time - Input.time < DoubleClickThreshold;
+				match = match && entry.price < GameManager.IntValue["Gem"];
 				match = match && 0 < entry.quantity;
 				if (match) {
+					GameManager.IntValue["Gem"] -= entry.price;
 					entry.quantity--;
 					FeatureList[index] = entry;
+					AudioManager.PlaySoundFX(Audio.Shop, 0.3f);
 					entry.action?.Invoke();
 					RefreshDetailPanel(name, text, icon, entry.price, entry.quantity);
-					RefreshListPanel();
+					RefreshListPanelForBuy();
 					Input = default;
 				} else {
 					RefreshDetailPanel(name, text, icon, entry.price, entry.quantity);
@@ -359,17 +343,119 @@ public sealed class ShopScreen : ScreenBase {
 		DefaultSelected = (0 < count) ? ItemButtonList[0] : null;
 	}
 
+	/*
+	판매 목록 표시 함수
+	*/
+
+	void RefreshListPanelForSell() {
+		int count = 0;
+		Button GetInstance() {
+			if (ItemButtonList.Count == count) ItemButtonList.Add(GetOrCreateInstance());
+			return ItemButtonList[count++];
+		}
+
+		int itemTypeCount = Enum.GetValues(typeof(ItemType)).Length;
+		for (int i = 0; i < itemTypeCount; i++) {
+			var itemType = (ItemType)i;
+			var inventory = InventoryManager.Instance.GetInventory(itemType);
+			foreach (var item in inventory.Items) {
+				/*
+				판매 불가 아이템 필터 추가 필요
+				예) if (!item.ItemData.IsSellable) continue;
+				*/
+				int index = count;
+				var instance = GetInstance();
+				var transform = (RectTransform)instance.transform;
+				var position = transform.anchoredPosition;
+				position.y = -transform.rect.height * index;
+				transform.anchoredPosition = position;
+				var name = item.ItemData.ItemName;
+				var text = item.ItemData.ItemDescription;
+				var icon = item.ItemData.ItemIconSprite;
+				if (TryGetIconImage(instance, out var iconImage)) iconImage.sprite = icon;
+				if (TryGetNameText(instance, out var nameText)) nameText.text = name;
+				/*
+				판매가 설정 필요
+				예) int price = item.ItemData.ItemSellPrice;
+				*/
+				int price = 1;
+				if (TryGetDataText(instance, out var dataText)) {
+					dataText.text = $"{price}";
+					if (TryGetCurrencyImage(instance, out var currencyImage)) {
+						RefreshLayout(dataText, currencyImage);
+					}
+				}
+				instance.onClick.RemoveAllListeners();
+				instance.onClick.AddListener(() => {
+					bool match = true;
+					match = match && Input.button == instance;
+					match = match && Time.time - Input.time < DoubleClickThreshold;
+					if (match) {
+						AudioManager.PlaySoundFX(Audio.Shop, 0.3f);
+						OnSellCompleted(item);
+						RefreshDetailPanel(name, text, icon, price, item.Count);
+						RefreshListPanelForSell();
+						Input = default;
+					} else {
+						RefreshDetailPanel(name, text, icon, price, item.Count);
+						Input = (instance, Time.time);
+					}
+				});
+			}
+		}
+
+		while (count < ItemButtonList.Count) {
+			RemoveInstance(ItemButtonList[count]);
+			ItemButtonList.RemoveAt(count);
+		}
+		var anchorTransform = (RectTransform)Anchor.transform;
+		var buttonTransform = (RectTransform)ItemButtonTemplate.transform;
+		var sizeDelta = anchorTransform.sizeDelta;
+		sizeDelta.y = buttonTransform.rect.height * count;
+		anchorTransform.sizeDelta = sizeDelta;
+		DefaultSelected = (0 < count) ? ItemButtonList[0] : null;
+	}
 
 
-	public void PurchaseSelectedItem() {
+
+	void RefreshDetailPanel(string name, string text, Sprite icon, int price, int quantity) {
+		DetailPanelIconImage.sprite = icon;
+		DetailPanelNameText.text = name;
+		DetailPanelTextText.text = text;
+		DetailPanelDataText.text = (0 < quantity) ? $"{quantity}개 남음" : "품절";
+	}
+
+	public void BuySelectedItem() {
 		if (Input.button != null) {
 			Input = (Input.button, Time.time);
 			Input.button.onClick.Invoke();
 		}
 	}
 
-	void OnItemPurchased(ItemData item) {
-		Debug.Log($"아이템 {item.ItemName} 구매");
+	public void SellSelectedItem() {
+		if (Input.button != null) {
+			Input = (Input.button, Time.time);
+			Input.button.onClick.Invoke();
+		}
+	}
+
+	/*
+	아이템 구매/판매 완료 콜백 함수
+	*/
+
+	void OnBuyCompleted(ItemData itemData) {
+		/*
+		인벤토리 내 아이템 +1 로직 추가 필요
+		*/
+		var itemBase = ItemDatabase.Instance.CreateItem(itemData, 1);
+		InventoryManager.Instance.AddItem(itemBase);
+	}
+
+	void OnSellCompleted(ItemBase itemBase) {
+		/*
+		인벤토리 내 아이템 -1 로직 추가 필요
+		*/
+		InventoryManager.Instance.RemoveItem(itemBase);
 	}
 
 

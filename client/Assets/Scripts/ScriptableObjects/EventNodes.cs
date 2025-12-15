@@ -18,6 +18,7 @@ using static ElementEditorExtensions;
 public enum PortType : byte {
 	Default,
 	Object,
+	MultimodalData,
 	DataID,
 }
 
@@ -105,6 +106,13 @@ public abstract class EventBase {
 					var capacity = Port.Capacity.Multi;
 					port = InstantiatePort(orientation, direction, capacity, typeof(GameObject));
 					port.portColor = new Color(0.0f, 0.8f, 1.0f);
+					port.portName = isInput ? "In" : "Out";
+				} break;
+				case PortType.MultimodalData: {
+					var orientation = Orientation.Horizontal;
+					var capacity = isInput ? Port.Capacity.Single : Port.Capacity.Multi;
+					port = InstantiatePort(orientation, direction, capacity, typeof(MultimodalData));
+					port.portColor = new Color(0.6f, 0.3f, 0.9f);
 					port.portName = isInput ? "In" : "Out";
 				} break;
 				case PortType.DataID: {
@@ -214,6 +222,12 @@ public abstract class EventBase {
 	protected virtual void GetObjects(List<GameObject> list) {
 		foreach (var prev in Prevs) if (prev.oPortType == PortType.Object) {
 			prev.eventBase.GetObjects(list);
+		}
+	}
+
+	protected virtual void GetMultimodalData(List<MultimodalData> list) {
+		foreach (var prev in Prevs) if (prev.oPortType == PortType.MultimodalData) {
+			prev.eventBase.GetMultimodalData(list);
 		}
 	}
 
@@ -890,7 +904,6 @@ public sealed class LogEvent : EventBase {
 // Multimodal | Validate
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-/*
 [NodeMenu("Multimodal/Validate Answer")]
 public class ValidateAnswerEvent : EventBase {
 
@@ -968,13 +981,12 @@ public class ValidateAnswerEvent : EventBase {
 		return false;
 	}
 
-	public override void GetNext(List<EventBase> list) {
+	public override void GetNexts(List<EventBase> list) {
 		list ??= new();
 		list.Clear();
 		int index = isException ? 2 : (isValid ? 0 : 1);
-		foreach (var next in nexts) if (next.oPortType == PortType.Default) {
+		foreach (var next in Nexts) if (next.oPortType == PortType.Default) {
 			if (next.oPort == index) list.Add(next.eventBase);
 		}
 	}
 }
-*/

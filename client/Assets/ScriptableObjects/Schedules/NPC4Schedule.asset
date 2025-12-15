@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6c2d6a5c8c9b934dbb2922c3331e1c5, type: 3}
+  m_Name: NPC4Schedule
+  m_EditorClassIdentifier: 
+  m_Behaviors:
+  - name: Sleep
+    isTimeFixed: 1
+    startTime: 21
+    weight: 0.5
+    duration: 3
+    isLocationBased: 1
+    location: {x: -12.65, y: 7.54, z: 0}
+  - name: Sleep
+    isTimeFixed: 1
+    startTime: 0
+    weight: 0.5
+    duration: 7
+    isLocationBased: 0
+    location: {x: 0, y: 0, z: 0}
+  - name: "\uC0C1\uC810\uC6B4\uC601"
+    isTimeFixed: 1
+    startTime: 10
+    weight: 0.5
+    duration: 6
+    isLocationBased: 1
+    location: {x: 10.83, y: 2.58, z: 0}
+  - name: "\uAD11\uC7A5 \uC0B0\uCC45 1"
+    isTimeFixed: 0
+    startTime: 0
+    weight: 0.5
+    duration: 3
+    isLocationBased: 1
+    location: {x: 8.99, y: -3.57, z: 0}
+  - name: "\uAD11\uC7A5 \uC0B0\uCC45 2"
+    isTimeFixed: 0
+    startTime: 0
+    weight: 0.5
+    duration: 5
+    isLocationBased: 1
+    location: {x: 6.59, y: -8.15, z: 0}
+  - name: "\uAD11\uC7A5 \uC0B0\uCC45 3"
+    isTimeFixed: 0
+    startTime: 0
+    weight: 0.5
+    duration: 4
+    isLocationBased: 1
+    location: {x: -10.15, y: -6.12, z: 0}
+  - name: "\uAD11\uC7A5 \uC0B0\uCC45 4"
+    isTimeFixed: 0
+    startTime: 0
+    weight: 0.5
+    duration: 5
+    isLocationBased: 1
+    location: {x: -3.22, y: -1.08, z: 0}
+  - name: "\uC815\uC790 \uBC30\uD68C"
+    isTimeFixed: 0
+    startTime: 0
+    weight: 0.2
+    duration: 3
+    isLocationBased: 1
+    location: {x: 11.27, y: 6.28, z: 0}

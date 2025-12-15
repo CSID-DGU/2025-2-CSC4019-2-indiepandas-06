@@ -8,6 +8,8 @@ public class ItemData : ScriptableObject
     public string ItemId => itemId;
     [SerializeField] private string itemName;
     public string ItemName => itemName;
+    [SerializeField] private string itemDescription;
+    public string ItemDescription => itemDescription;
     [SerializeField] private ItemType itemType;
     public ItemType ItemType => itemType;
     [SerializeField] private bool isStackable;

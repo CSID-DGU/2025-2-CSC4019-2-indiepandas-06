@@ -29,6 +29,7 @@ public sealed class AlertScreen : ScreenBase {
 			Space();
 
 			LabelField("Alert", EditorStyles.boldLabel);
+			I.TitleText = ObjectField("Title Text", I.TitleText);
 			I.ContentText = ObjectField("Content Text", I.ContentText);
 			I.CloseText   = ObjectField("Close Text",   I.CloseText);
 			Space();
@@ -42,6 +43,7 @@ public sealed class AlertScreen : ScreenBase {
 
 	// Fields
 
+	[SerializeField] TextMeshProUGUI m_TitleText;
 	[SerializeField] TextMeshProUGUI m_ContentText;
 	[SerializeField] TextMeshProUGUI m_CloseText;
 
@@ -56,7 +58,10 @@ public sealed class AlertScreen : ScreenBase {
 	public override BackgroundMode BackgroundMode => BackgroundMode.PreserveWithBlur;
 
 
-
+	TextMeshProUGUI TitleText {
+		get => m_TitleText;
+		set => m_TitleText = value;
+	}
 	TextMeshProUGUI ContentText {
 		get => m_ContentText;
 		set => m_ContentText = value;
@@ -66,6 +71,10 @@ public sealed class AlertScreen : ScreenBase {
 		set => m_CloseText = value;
 	}
 
+	public string TitleTextValue {
+		get => TitleText.text;
+		set => TitleText.text = value;
+	}
 	public string ContentTextValue {
 		get => ContentText.text;
 		set => ContentText.text = value;

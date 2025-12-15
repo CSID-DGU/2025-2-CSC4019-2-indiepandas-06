@@ -90,7 +90,7 @@ Material:
     - _BlurAmount: 20
     - _BlurSize: 10
     - _BlurStrength: 2
-    - _Blur_Offset: 0
+    - _Blur_Offset: 3
     - _BumpScale: 1
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
